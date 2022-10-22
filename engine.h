@@ -1,7 +1,13 @@
+#ifndef ENGINE_H
+#define ENGINE_H
+
+#include <Arduino.h>
+
+using namespace std;
+
 class Engine {
   public:
-    int get_rpm() {
-      int engineRpm = 0;
-      return engineRpm;
-    }
+    int get_rpm();
 };
+
+#endif
