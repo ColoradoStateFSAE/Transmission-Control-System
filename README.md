@@ -1,3 +1,4 @@
+![PCB_Shifting system power board 1 0 1](https://user-images.githubusercontent.com/45497901/214678086-d212ef7b-ecfe-4a33-8416-da445f9898c8.png)
 # Shifting-system
 See https://wokwi.com/projects/344992233478423124 for more details
 
