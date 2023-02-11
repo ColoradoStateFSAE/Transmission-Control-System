@@ -1,5 +1,5 @@
 # Shifting-system
-A electronic shifting solenoid driver system for CSU formula SAE
+A electronic shifting solenoid driver system for CSU formula SAE.
 See https://wokwi.com/projects/344992233478423124 for more details
 
 
