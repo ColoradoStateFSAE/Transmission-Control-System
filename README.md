@@ -1,5 +1,5 @@
 # Shifting System
-A electronic shifting solenoid driver system for CSU formula SAE.
+An electronic shifting solenoid driver system for CSU formula SAE.
 
 ![Shifting System](https://github.com/ColoradoStateFSAE/Shifting-system/assets/27783364/d80f34ac-1cfa-4130-907a-723e053b94ae)
 
