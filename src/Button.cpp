@@ -1,11 +1,5 @@
 #include "Button.h"
 
-Button::Button(int pin, int debounce) {
-  buttonPin = pin;
-  debounceDelay = debounce;
-  pinMode(buttonPin, INPUT_PULLUP);
-}
-
 // button_pressed takes a button and returns true if it was pressed
 void Button::update() {
   bool pressed = false;
@@ -26,7 +20,6 @@ void Button::update() {
   }
 
   lastButtonState = state;
-
   buttonPressed = pressed;
 }
 

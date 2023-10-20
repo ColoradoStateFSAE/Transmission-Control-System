@@ -11,7 +11,7 @@ Transmission transmission(can);
 Servo servo;
 Adafruit_SSD1306 oled(128, 64);
 
-//void servoPosition(int value);
+void servoPosition(int value);
 void display();
 
 void setup() {
@@ -26,7 +26,7 @@ void setup() {
   can.setFIFOFilter(2, 0x655, STD);
   can.setFIFOFilter(3, 0x656, STD);
 
-  //servo.attach(9);
+  servo.attach(9);
 
   oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 }
@@ -52,31 +52,33 @@ void loop() {
   up.update();
   down.update();
 
-  // Up
   if(up.pressed()) {
     transmission.shift(UP);
+    Serial.println("Up pressed");
   } else if(down.pressed()) {
     transmission.shift(DOWN);
+    Serial.println("Down pressed");
   }
 
   transmission.broadcast_gear(100);
-  //servoPosition(analogRead(9));
+
+  servoPosition(analogRead(9));
 
   display();
 }
 
-// void servoPosition(int value) {
-//   int inflectionPoint = 200;
-//   int inflectionAngle = 90;
+void servoPosition(int value) {
+  int inflectionPoint = 200;
+  int inflectionAngle = 90;
   
-//   if(value <= inflectionPoint) {
-//     value = map(value, 0, inflectionPoint, 0, inflectionAngle);
-//   } else {
-//     value = map(value, inflectionPoint+1, 1023, inflectionAngle, 180);
-//   }
+  if(value <= inflectionPoint) {
+    value = map(value, 0, inflectionPoint, 0, inflectionAngle);
+  } else {
+    value = map(value, inflectionPoint+1, 1023, inflectionAngle, 180);
+  }
   
-//   servo.write(value);
-// }
+  servo.write(value);
+}
 
 void display() {
   static long lastDisplayTime = 0;

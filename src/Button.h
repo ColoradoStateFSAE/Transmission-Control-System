@@ -7,14 +7,16 @@
 class Button {
   public:
     Button() = delete;
-    Button(int pin, int debounce=5);
+    Button(int pin, int debounce=5) : buttonPin(pin), debounceDelay(debounce) {
+      pinMode(buttonPin, INPUT_PULLUP);
+    }
     void update();
     bool pressed();
 
   private:
-    unsigned int debounceDelay;
+    const int buttonPin;
+    const unsigned int debounceDelay;
 
-    int buttonPin;
     int buttonState = HIGH;
     int lastButtonState = HIGH;
     unsigned long lastDebounceTime = 0;
