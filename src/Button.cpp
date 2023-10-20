@@ -1,14 +1,14 @@
-#include "Controls.h"
+#include "Button.h"
 
-Controls::Controls(int pin) {
+Button::Button(int pin, int debounce) {
   buttonPin = pin;
+  debounceDelay = debounce;
   pinMode(buttonPin, INPUT_PULLUP);
 }
 
 // button_pressed takes a button and returns true if it was pressed
-void Controls::update() {
+void Button::update() {
   bool pressed = false;
-  bool released = false;
 
   int state = digitalRead(buttonPin);
 
@@ -16,7 +16,7 @@ void Controls::update() {
     lastDebounceTime = millis();
   }
 
-  if ((millis() - lastDebounceTime) >= DEBOUNCE_TIME) {
+  if ((millis() - lastDebounceTime) >= debounceDelay) {
     if (state != buttonState) {
       buttonState = state;
       if (buttonState == LOW) {
@@ -28,9 +28,8 @@ void Controls::update() {
   lastButtonState = state;
 
   buttonPressed = pressed;
-  buttonReleased = released;
 }
 
-bool Controls::pressed() {
+bool Button::pressed() {
   return buttonPressed;
 }

@@ -5,10 +5,15 @@
 #include <EEPROM.h>
 #include <FlexCAN_T4.h>
 #include <TeensyTimerTool.h>
-#include "Controls.h"
+#include "Button.h"
 #include "canutil.h"
 
 using namespace TeensyTimerTool;
+
+enum {
+  UP = 0,
+  DOWN = 1
+};
 
 class Transmission {
   public:
