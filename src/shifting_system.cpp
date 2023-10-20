@@ -4,7 +4,7 @@
 #include <Servo.h>
 #include <FlexCAN_T4.h>
 #include "Transmission.h"
-#include "Controls.h"
+#include "Button.h"
 
 FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> can;
 Transmission transmission(can);
@@ -31,8 +31,8 @@ void setup() {
   oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 }
 
-Controls up(34);
-Controls down(35);
+Button up(34);
+Button down(35);
 
 void loop() {
   static unsigned long lastCanUpdate = 0;
@@ -55,7 +55,6 @@ void loop() {
   // Up
   if(up.pressed()) {
     transmission.shift(UP);
-    Serial.println("Up");
   } else if(down.pressed()) {
     transmission.shift(DOWN);
   }
