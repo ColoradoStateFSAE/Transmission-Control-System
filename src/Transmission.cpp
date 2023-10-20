@@ -21,10 +21,10 @@ void Transmission::broadcast_gear(unsigned long frequency) {
 }
 
 void Transmission::shift(int direction) {
-  // if(rpm() < 2000) {
-  //   gear(0);
-  //   return;
-  // }
+  if(rpm() < 2000) {
+    gear(0);
+    return;
+  }
 
   if(timeout) return;
 
