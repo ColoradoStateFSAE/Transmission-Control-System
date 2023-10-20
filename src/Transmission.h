@@ -34,8 +34,8 @@ class Transmission {
 
   private:
     const int OUTPUT_PINS[2] = {41, 40}; // {up, down}
-    const int DELAY_DURATION = 5;
-    const int OUTPUT_DURATION = 70;
+    const int DELAY_DURATION = 50;
+    const int OUTPUT_DURATION = 80;
     const int TIMEOUT_DURATION = 200;
 
     const int GEAR_ADDRESS = 1;
