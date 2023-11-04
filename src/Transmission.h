@@ -23,10 +23,13 @@ class Transmission {
       pinMode(OUTPUT_PINS[1], OUTPUT);
       pinMode(13, OUTPUT);
 
-      if(EEPROM.read(GEAR_ADDRESS) == 0xFF) setGear(0);
-      if(EEPROM.read(DELAY_ADDRESS) == 0xFF) setDelay(50);
-      if(EEPROM.read(OUTPUT_ADDRESS) == 0xFF) setOutput(70);
-      if(EEPROM.read(TIMEOUT_ADDRESS) == 0xFF) setTimeout(200);
+      // for (int i = 0; i < EEPROM.length(); i++) EEPROM.write(i, 0xFF);
+
+      uint16_t saved;
+      EEPROM.get(GEAR_ADDRESS, saved); if(saved == 0xFFFF) setGear(0);
+      EEPROM.get(DELAY_ADDRESS, saved); if(saved == 0xFFFF) setDelay(50);
+      EEPROM.get(OUTPUT_ADDRESS, saved); if(saved == 0xFFFF) setOutput(70);
+      EEPROM.get(TIMEOUT_ADDRESS, saved); if(saved == 0xFFFF) setTimeout(200);
     }
 
     void setGear(uint16_t value) { EEPROM.put(GEAR_ADDRESS, value); }
@@ -51,9 +54,9 @@ class Transmission {
     const int OUTPUT_PINS[2] = {41, 40}; // {up, down}
 
     const int GEAR_ADDRESS = 0;
-    const int DELAY_ADDRESS = 3;
-    const int OUTPUT_ADDRESS = 5;
-    const int TIMEOUT_ADDRESS = 7;
+    const int DELAY_ADDRESS = 2;
+    const int OUTPUT_ADDRESS = 4;
+    const int TIMEOUT_ADDRESS = 6;
 
     volatile bool timeout = false;
 

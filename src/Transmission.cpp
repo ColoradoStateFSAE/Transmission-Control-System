@@ -35,8 +35,10 @@ void Transmission::shift(int direction) {
   lastShift = millis();
 
   startTime = millis();
-  
-  if(direction == UP && getGear() == 0) {
+
+  if(rpm() == 0) {
+    setGear(0);
+  } else if(direction == UP && getGear() == 0) {
     setGear(2);
   } else if(direction == UP && getGear() < 6) {
     setGear(getGear()+1);
