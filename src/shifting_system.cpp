@@ -42,6 +42,18 @@ void loop() {
     if(msg.id == 1520) {
       transmission.rpm(canutil::read_data(msg, 6, 2));
       lastCanUpdate = millis();
+    } else if(msg.id == 1621) {
+      transmission.setDelay(canutil::read_data(msg, 0, 2));
+      transmission.setOutput(canutil::read_data(msg, 2, 2));
+      transmission.setTimeout(canutil::read_data(msg, 4, 2));
+      int friction = canutil::read_data(msg, 6, 2);
+
+      Serial.println("SHIFT TIMING SET");
+      Serial.println("DELAY: " + String(transmission.getDelay()));
+      Serial.println("OUTPUT: " + String(transmission.getOutput()));
+      Serial.println("TIMEOUT: " + String(transmission.getTimeout()));
+      Serial.println("FRICTION POINT: " + String(friction));
+      Serial.println("");
     }
   }
   
@@ -86,7 +98,7 @@ void display() {
     oled.setCursor(0, 0);
     oled.setTextColor(WHITE);
     oled.setTextSize(2);
-    oled.println(transmission.gear());
+    oled.println(transmission.getGear());
     oled.println(transmission.rpm());
     oled.setTextSize(0);
     oled.println(millis()/1000.0, 1);

@@ -23,13 +23,23 @@ class Transmission {
       pinMode(OUTPUT_PINS[1], OUTPUT);
       pinMode(13, OUTPUT);
 
-      if(EEPROM.read(GEAR_ADDRESS) == 0xFF) {
-        EEPROM.write(GEAR_ADDRESS, 0);
-      }
+      if(EEPROM.read(GEAR_ADDRESS) == 0xFF) setGear(0);
+      if(EEPROM.read(DELAY_ADDRESS) == 0xFF) setDelay(50);
+      if(EEPROM.read(OUTPUT_ADDRESS) == 0xFF) setOutput(70);
+      if(EEPROM.read(TIMEOUT_ADDRESS) == 0xFF) setTimeout(200);
     }
 
-    void gear(int value) { EEPROM.write(GEAR_ADDRESS, value); }
-    int gear() { return EEPROM.read(GEAR_ADDRESS); }
+    void setGear(uint16_t value) { EEPROM.put(GEAR_ADDRESS, value); }
+    uint16_t getGear() { uint16_t saved; EEPROM.get(GEAR_ADDRESS, saved); return saved; }
+
+    void setDelay(uint16_t value) { EEPROM.put(DELAY_ADDRESS, value); }
+    uint16_t getDelay() { uint16_t saved; EEPROM.get(DELAY_ADDRESS, saved); return saved; }
+
+    void setOutput(uint16_t value) { EEPROM.put(OUTPUT_ADDRESS, value); }
+    uint16_t getOutput() { uint16_t saved; EEPROM.get(OUTPUT_ADDRESS, saved); return saved; }
+    
+    void setTimeout(uint16_t value) { EEPROM.put(TIMEOUT_ADDRESS, value); }
+    uint16_t getTimeout() { uint16_t saved; EEPROM.get(TIMEOUT_ADDRESS, saved); return saved; }
 
     void rpm(int value) { rpmValue = value; }
     int rpm() { return rpmValue; }
@@ -39,11 +49,11 @@ class Transmission {
 
   private:
     const int OUTPUT_PINS[2] = {41, 40}; // {up, down}
-    const int DELAY_DURATION = 50;
-    const int OUTPUT_DURATION = 80;
-    const int TIMEOUT_DURATION = 200;
 
-    const int GEAR_ADDRESS = 1;
+    const int GEAR_ADDRESS = 0;
+    const int DELAY_ADDRESS = 3;
+    const int OUTPUT_ADDRESS = 5;
+    const int TIMEOUT_ADDRESS = 7;
 
     volatile bool timeout = false;
 
@@ -51,7 +61,6 @@ class Transmission {
 
     int rpmValue = 0;
 
-    void set_timeout(int duration);
     void disable_combustion();
     void power_solenoid(int direction);
 };
