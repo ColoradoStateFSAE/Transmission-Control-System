@@ -1,17 +1,18 @@
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>
 #include <EEPROM.h>
-#include <Servo.h>
+
 #include <FlexCAN_T4.h>
 #include "Transmission.h"
+#include "Clutch.h"
 #include "Button.h"
 
 FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> can;
 Transmission transmission(can);
-Servo servo;
+Clutch clutch(can);
 Adafruit_SSD1306 oled(128, 64);
 
-//void servoPosition(int value);
+void printValues();
 void display();
 
 void setup() {
@@ -23,16 +24,15 @@ void setup() {
   can.setFIFOFilter(REJECT_ALL);
   can.setFIFOFilter(0, 1520, STD);
   can.setFIFOFilter(1, 1572, STD);
-  can.setFIFOFilter(2, 0x655, STD);
-  can.setFIFOFilter(3, 0x656, STD);
-
-  //servo.attach(9);
+  can.setFIFOFilterRange(2, 1620, 1640, STD);
 
   oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 }
 
 Button up(34);
 Button down(35);
+
+int i = 0;
 
 void loop() {
   static unsigned long lastCanUpdate = 0;
@@ -43,17 +43,19 @@ void loop() {
       transmission.rpm(canutil::read_data(msg, 6, 2));
       lastCanUpdate = millis();
     } else if(msg.id == 1621) {
-      transmission.setDelay(canutil::read_data(msg, 0, 2));
-      transmission.setOutput(canutil::read_data(msg, 2, 2));
-      transmission.setTimeout(canutil::read_data(msg, 4, 2));
-      int friction = canutil::read_data(msg, 6, 2);
-
-      Serial.println("SHIFT TIMING SET");
-      Serial.println("DELAY: " + String(transmission.getDelay()));
-      Serial.println("OUTPUT: " + String(transmission.getOutput()));
-      Serial.println("TIMEOUT: " + String(transmission.getTimeout()));
-      Serial.println("FRICTION POINT: " + String(friction));
-      Serial.println("");
+      Serial.println(String(msg.buf[2]) + String(msg.buf[3]));
+      transmission.setDelay(canutil::read_data(msg, 2, 2));
+      transmission.setOutput(canutil::read_data(msg, 4, 2));
+      transmission.setTimeout(canutil::read_data(msg, 6, 2));
+      printValues();
+    } else if(msg.id == 1623) {
+      clutch.setStart(canutil::read_data(msg, 0, 2));
+      clutch.setEnd(canutil::read_data(msg, 2, 2));
+      clutch.setFriction(canutil::read_data(msg, 4, 2));
+      printValues();
+    } else if(msg.id == 1624) { // 0x657
+      clutch.write(canutil::read_data(msg, 0, 2));
+      Serial.println(canutil::read_data(msg, 0, 2));
     }
   }
   
@@ -64,7 +66,6 @@ void loop() {
   up.update();
   down.update();
 
-  // Up
   if(up.pressed()) {
     transmission.shift(UP);
   } else if(down.pressed()) {
@@ -72,23 +73,22 @@ void loop() {
   }
 
   transmission.broadcast_gear(100);
-  //servoPosition(analogRead(9));
 
-  display();
+  //display();
 }
 
-// void servoPosition(int value) {
-//   int inflectionPoint = 200;
-//   int inflectionAngle = 90;
-  
-//   if(value <= inflectionPoint) {
-//     value = map(value, 0, inflectionPoint, 0, inflectionAngle);
-//   } else {
-//     value = map(value, inflectionPoint+1, 1023, inflectionAngle, 180);
-//   }
-  
-//   servo.write(value);
-// }
+void printValues() {
+  Serial.println("SHIFT");
+  Serial.println("DELAY: " + String(transmission.getDelay()));
+  Serial.println("OUTPUT: " + String(transmission.getOutput()));
+  Serial.println("TIMEOUT: " + String(transmission.getTimeout()));
+  Serial.println("");
+  Serial.println("CLUTCH");
+  Serial.println("CLUTCH START: " + String(clutch.getStart()));
+  Serial.println("CLUTCH END: " + String(clutch.getEnd()));
+  Serial.println("FRICTION POINT: " + String(clutch.getFriction()));
+  Serial.println("");
+}
 
 void display() {
   static long lastDisplayTime = 0;

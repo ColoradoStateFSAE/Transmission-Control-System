@@ -15,14 +15,10 @@ void Transmission::broadcast_gear(unsigned long frequency) {
     CAN_message_t msg;
     msg.id = 1620;
     canutil::construct_data(msg, getGear(), 0, 1);
+    canutil::construct_data(msg, getDelay(), 2, 2);
+    canutil::construct_data(msg, getOutput(), 4, 2);
+    canutil::construct_data(msg, getTimeout(), 6, 2);
     can.write(msg);
-
-    CAN_message_t timing;
-    timing.id = 1622;
-    canutil::construct_data(timing, getDelay(), 0, 2);
-    canutil::construct_data(timing, getOutput(), 2, 2);
-    canutil::construct_data(timing, getTimeout(), 4, 2);
-    can.write(timing);
   }
 }
 
