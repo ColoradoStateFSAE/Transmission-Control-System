@@ -11,9 +11,9 @@ class Clutch {
     Clutch() = delete;
     Clutch(const FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> &canRef) : can(canRef) {
       uint16_t saved;
-      EEPROM.get(START_ADDRESS, saved); if(saved == 0xFFFF) setStart(27);
-      EEPROM.get(END_ADDRESS, saved); if(saved == 0xFFFF) setEnd(103);
-      EEPROM.get(FRICTION_ADDRESS, saved); if(saved == 0xFFFF) setFriction(80);
+      EEPROM.get(START_ADDRESS, saved); if(saved == 0xFFFF) setStart(114);
+      EEPROM.get(END_ADDRESS, saved); if(saved == 0xFFFF) setEnd(65);
+      EEPROM.get(FRICTION_ADDRESS, saved); if(saved == 0xFFFF) setFriction(60);
 
       servo.attach(0);
     }

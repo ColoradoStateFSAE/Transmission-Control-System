@@ -43,7 +43,6 @@ void loop() {
       transmission.rpm(canutil::read_data(msg, 6, 2));
       lastCanUpdate = millis();
     } else if(msg.id == 1621) {
-      Serial.println(String(msg.buf[2]) + String(msg.buf[3]));
       transmission.setDelay(canutil::read_data(msg, 2, 2));
       transmission.setOutput(canutil::read_data(msg, 4, 2));
       transmission.setTimeout(canutil::read_data(msg, 6, 2));
@@ -55,7 +54,6 @@ void loop() {
       printValues();
     } else if(msg.id == 1624) { // 0x657
       clutch.write(canutil::read_data(msg, 0, 2));
-      Serial.println(canutil::read_data(msg, 0, 2));
     }
   }
   
@@ -78,12 +76,11 @@ void loop() {
 }
 
 void printValues() {
-  Serial.println("SHIFT");
+  //Serial.println("SHIFT");
   Serial.println("DELAY: " + String(transmission.getDelay()));
   Serial.println("OUTPUT: " + String(transmission.getOutput()));
   Serial.println("TIMEOUT: " + String(transmission.getTimeout()));
-  Serial.println("");
-  Serial.println("CLUTCH");
+  //Serial.println("CLUTCH");
   Serial.println("CLUTCH START: " + String(clutch.getStart()));
   Serial.println("CLUTCH END: " + String(clutch.getEnd()));
   Serial.println("FRICTION POINT: " + String(clutch.getFriction()));
