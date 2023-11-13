@@ -28,6 +28,9 @@ class Clutch {
     uint16_t getFriction() { uint16_t saved; EEPROM.get(FRICTION_ADDRESS, saved); return saved; }
 
     void write(int value) {
+        if(value > getStart()) value = getStart();
+        if(value < getEnd()) value = getEnd();
+
         servo.write(value);
     }
 
