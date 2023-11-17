@@ -40,7 +40,7 @@ class Clutch {
         lastBroadastTime = millis();
 
         CAN_message_t msg;
-        msg.id = 1622;
+        msg.id = 1621;
         canutil::construct_data(msg, getStart(), 0, 2);
         canutil::construct_data(msg, getEnd(), 2, 2);
         canutil::construct_data(msg, getFriction(), 4, 2);

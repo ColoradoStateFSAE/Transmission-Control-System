@@ -42,17 +42,17 @@ void loop() {
     if(msg.id == 1520) {
       transmission.rpm(canutil::read_data(msg, 6, 2));
       lastCanUpdate = millis();
-    } else if(msg.id == 1621) {
+    } else if(msg.id == 1620) {
       transmission.setDelay(canutil::read_data(msg, 2, 2));
       transmission.setOutput(canutil::read_data(msg, 4, 2));
       transmission.setTimeout(canutil::read_data(msg, 6, 2));
       printValues();
-    } else if(msg.id == 1623) {
+    } else if(msg.id == 1621) {
       clutch.setStart(canutil::read_data(msg, 0, 2));
       clutch.setEnd(canutil::read_data(msg, 2, 2));
       clutch.setFriction(canutil::read_data(msg, 4, 2));
       printValues();
-    } else if(msg.id == 1624) { // 0x657
+    } else if(msg.id == 1622) { // 0x657
       clutch.write(canutil::read_data(msg, 0, 2));
     }
   }
@@ -71,6 +71,7 @@ void loop() {
   }
 
   transmission.broadcast_gear(100);
+  clutch.broadcast_values(100);
 
   //display();
 }
