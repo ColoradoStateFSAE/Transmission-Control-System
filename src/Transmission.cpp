@@ -63,14 +63,14 @@ void Transmission::power_solenoid(int direction) {
 
   // Create an interrupt timer to enable the solenoid
   outputEnable.begin([this, outputPin] {
-    if(rpm() >= 2000) { digitalWrite(outputPin, HIGH); digitalWrite(13, HIGH); }
+    if(rpm() >= 0) { digitalWrite(outputPin, HIGH); digitalWrite(13, HIGH); }
     Serial.println("ENABLE: " + String(millis() - startTime));
   });
   outputEnable.trigger(getDelay() * 1000);
 
   // Create an interrupt timer to enable the solenoid
   outputDisable.begin([this, outputPin] {
-    if(rpm() >= 2000) { digitalWrite(outputPin, LOW); digitalWrite(13, LOW); }
+    if(rpm() >= 0) { digitalWrite(outputPin, LOW); digitalWrite(13, LOW); }
     Serial.println("DISABLE: " + String(millis() - startTime));
   });
   outputDisable.trigger((getDelay() + getOutput()) * 1000);
