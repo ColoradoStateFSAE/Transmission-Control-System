@@ -52,6 +52,8 @@ void Transmission::shift(int direction) {
 void Transmission::disable_combustion() {
   CAN_message_t msg;
   msg.id = 522;
+  canutil::construct_data(msg, 0b00000000, 0, 1);
+  can.write(msg);
   canutil::construct_data(msg, 0b00000001, 0, 1);
   can.write(msg);
   canutil::construct_data(msg, 0b00000000, 0, 1);
