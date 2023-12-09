@@ -6,6 +6,7 @@
 #include "Transmission.h"
 #include "Clutch.h"
 #include "Button.h"
+#include "Neutral.h"
 
 FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> can;
 Transmission transmission(can);
@@ -31,6 +32,7 @@ void setup() {
 
 Button up(41);
 Button down(40);
+Neutral input(14);
 
 int i = 0;
 

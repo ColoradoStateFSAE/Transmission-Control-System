@@ -66,6 +66,7 @@ class Transmission {
 
     void disable_combustion();
     void power_solenoid(int direction);
+    void check_neutral(bool neutral);
 };
 
 #endif
