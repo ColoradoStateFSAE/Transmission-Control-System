@@ -31,8 +31,8 @@ void setup() {
   oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 }
 
-Button up(34);
-Button down(35);
+Button up(41);
+Button down(40);
 
 void loop() {
   static unsigned long lastCanUpdate = 0;
