@@ -2,9 +2,8 @@
 
 using namespace TeensyTimerTool;
 
-OneShotTimer outputEnable(TCK);
-OneShotTimer outputDisable(GPT1);
-OneShotTimer timeoutTimer(GPT2);
+OneShotTimer outputEnable(GPT1);
+OneShotTimer outputDisable(GPT2);
 
 unsigned long startTime = 0;
 
@@ -15,30 +14,34 @@ void Transmission::broadcast_gear(unsigned long frequency) {
 
     CAN_message_t msg;
     msg.id = 1620;
-    canutil::construct_data(msg, gear(), 0, 1);
+    canutil::construct_data(msg, getGear(), 0, 1);
+    canutil::construct_data(msg, getDelay(), 2, 2);
+    canutil::construct_data(msg, getOutput(), 4, 2);
+    canutil::construct_data(msg, getTimeout(), 6, 2);
     can.write(msg);
   }
 }
 
 void Transmission::shift(int direction) {
-  // if(rpm() < 2000) {
-  //   gear(0);
-  //   return;
-  // }
-
-  if(timeout) return;
+  static unsigned long lastShift = 0;
+  if((millis() - lastShift) < getTimeout()) {
+    Serial.println("Attempted to shift before timeout: " + String(millis() - lastShift)); 
+    return;
+  }
+  lastShift = millis();
 
   startTime = millis();
-  set_timeout(TIMEOUT_DURATION);
-  
-  if(direction == UP && gear() == 0) {
-    gear(2);
-  } else if(direction == UP && gear() < 6) {
-    gear(gear()+1);
-  } else if(direction == DOWN && gear() == 0) {
-    gear(1);
-  } else if(direction == DOWN && gear() > 1) {
-    gear(gear()-1);
+
+  if(rpm() == 0) {
+    setGear(0);
+  } else if(direction == UP && getGear() == 0) {
+    setGear(2);
+  } else if(direction == UP && getGear() < 6) {
+    setGear(getGear()+1);
+  } else if(direction == DOWN && getGear() == 0) {
+    setGear(1);
+  } else if(direction == DOWN && getGear() > 1) {
+    setGear(getGear()-1);
   }
 
   disable_combustion();
@@ -46,42 +49,30 @@ void Transmission::shift(int direction) {
   broadcast_gear();
 }
 
-void Transmission::set_timeout(int duration) {
-    timeout = true;
-    timeoutTimer.begin([this] {
-      timeout = false;
-      Serial.println("TIMEOUT: " + String(millis() - startTime));
-    });
-    timeoutTimer.trigger((duration) * 1000);
-}
-
 void Transmission::disable_combustion() {
   CAN_message_t msg;
   msg.id = 522;
-  canutil::construct_data(msg, 0b00000001, 0, 1);
-  can.write(msg);
-  canutil::construct_data(msg, 0b00000000, 0, 1);
-  can.write(msg);
+  msg.buf[0] = 0b00000000; can.write(msg);
+  msg.buf[0] = 0b00000001; can.write(msg);
+  msg.buf[0] = 0b00000000; can.write(msg);
 }
 
 void Transmission::power_solenoid(int direction) {
-  int duration = DELAY_DURATION + OUTPUT_DURATION;
-
   int outputPin = OUTPUT_PINS[direction];
 
   // Create an interrupt timer to enable the solenoid
-  outputEnable.begin([outputPin] {
-    digitalWrite(outputPin, HIGH); digitalWrite(13, HIGH);
+  outputEnable.begin([this, outputPin] {
+    if(rpm() >= 0) { digitalWrite(outputPin, HIGH); digitalWrite(13, HIGH); }
     Serial.println("ENABLE: " + String(millis() - startTime));
   });
-  outputEnable.trigger(DELAY_DURATION * 1000);
+  outputEnable.trigger(getDelay() * 1000);
 
   // Create an interrupt timer to enable the solenoid
-  outputDisable.begin([outputPin] {
+  outputDisable.begin([this, outputPin] {
+    if(rpm() >= 0) { digitalWrite(outputPin, LOW); digitalWrite(13, LOW); }
     Serial.println("DISABLE: " + String(millis() - startTime));
-    digitalWrite(outputPin, LOW); digitalWrite(13, LOW);
   });
-  outputDisable.trigger(duration * 1000);
+  outputDisable.trigger((getDelay() + getOutput()) * 1000);
 
   Serial.println();
 }
