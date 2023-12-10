@@ -8,10 +8,9 @@ class AnalogAverage {
   public:
     AnalogAverage() {
 		pinMode(A0, INPUT);
-
-		int reading = analogRead(A0);
+		
         for (int i = 0; i < size; i++) {
-			samples.add(reading);
+			samples.add(analogRead(A0));
 		}
     }
 
