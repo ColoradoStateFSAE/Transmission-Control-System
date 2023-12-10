@@ -29,47 +29,11 @@ class Clutch {
 	void setFriction(uint16_t value) { EEPROM.put(FRICTION_ADDRESS, value); }
 	uint16_t getFriction() { uint16_t saved; EEPROM.get(FRICTION_ADDRESS, saved); return saved; }
 
-	void write(int value) {
-		if(value > getStart()) { value = getStart(); }
-		if(value < getEnd()) value = getEnd();
-		Serial.println("VALUE: " + String(value));
-		Serial.println("END: " + String(getEnd()));
-		Serial.println("START: " + String(getStart()) + "\n");
+	void write(int value);
 
-		servo.write(value);
-	}
+	void broadcast_values(unsigned long frequency);
 
-	void broadcast_values(unsigned long frequency) {
-		static unsigned long lastBroadastTime = 0;
-		if (millis() - lastBroadastTime >= frequency) {
-			lastBroadastTime = millis();
-
-			CAN_message_t msg;
-			msg.id = 1621;
-			canutil::construct_data(msg, getStart(), 0, 2);
-			canutil::construct_data(msg, getEnd(), 2, 2);
-			canutil::construct_data(msg, getFriction(), 4, 2);
-			can.write(msg);
-		}
-	}
-
-	void update(int value) {
-		if(value > analogMax) { analogMax = value; }
-		if(value < analogMin) { analogMin = value; }
-
-		int threshold = analogMax * 0.9;
-		if(value <= threshold) {
-			value = map(value, threshold, analogMin, getFriction(), getEnd());
-		} else {
-			value = getStart();
-		}
-
-		if(value > getStart()) value = getStart();
-		if(value < getEnd()) value = getEnd();
-
-		servo.write(value);
-	}
-
+	void update(int value);
 
   private:
 	const int START_ADDRESS = 8;

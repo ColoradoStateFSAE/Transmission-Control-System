@@ -23,26 +23,33 @@ void Transmission::broadcast_gear(unsigned long frequency) {
 }
 
 void Transmission::shift(int direction) {
-static unsigned long lastShift = 0;
-if((millis() - lastShift) < getTimeout()) {
-	Serial.println("Attempted to shift before timeout: " + String(millis() - lastShift)); 
-	return;
-}
-lastShift = millis();
+	static unsigned long lastShift = 0;
+	if((millis() - lastShift) < getTimeout()) {
+		Serial.println("Attempted to shift before timeout: " + String(millis() - lastShift)); 
+		return;
+	}
 
-startTime = millis();
+	if(direction == UP) {
+		Serial.println("UP");
+	} else {
+		Serial.println("DOWN");
+	}
 
-if(rpm() == 0) {
-	setGear(0);
-} else if(direction == UP && getGear() == 0) {
-	setGear(2);
-} else if(direction == UP && getGear() < 6) {
-	setGear(getGear()+1);
-} else if(direction == DOWN && getGear() == 0) {
-	setGear(1);
-} else if(direction == DOWN && getGear() > 1) {
-	setGear(getGear()-1);
-}
+	lastShift = millis();
+
+	startTime = millis();
+
+	if(rpm() == 0) {
+		setGear(0);
+	} else if(direction == UP && getGear() == 0) {
+		setGear(2);
+	} else if(direction == UP && getGear() < 6) {
+		setGear(getGear()+1);
+	} else if(direction == DOWN && getGear() == 0) {
+		setGear(1);
+	} else if(direction == DOWN && getGear() > 1) {
+		setGear(getGear()-1);
+	}
 
 	disable_combustion();
 	power_solenoid(direction);
@@ -60,25 +67,39 @@ void Transmission::disable_combustion() {
 void Transmission::power_solenoid(int direction) {
 	int outputPin = OUTPUT_PINS[direction];
 
+	int enableDelay = getDelay();
+
+	if(direction == DOWN) {
+		Serial.println("CLUTCH ENABLE: " + String(millis() - startTime));
+		enableDelay = CLUTCH_DELAY;
+		clutchOverride = true;
+		clutch.update(clutch.getEnd());
+	}
+
 	// Create an interrupt timer to enable the solenoid
 	outputEnable.begin([this, outputPin] {
 		if(rpm() >= 500) {
 			digitalWrite(outputPin, HIGH);
-			digitalWrite(13, HIGH);
 		}
 		Serial.println("ENABLE: " + String(millis() - startTime));
 	});
-	outputEnable.trigger(getDelay() * 1000);
+	outputEnable.trigger(enableDelay * 1000);
 
 	// Create an interrupt timer to disable the solenoid
-	outputDisable.begin([this, outputPin] {
+	outputDisable.begin([this, outputPin, direction] {
 		if(rpm() >= 500) { 
 			digitalWrite(outputPin, LOW);
-			digitalWrite(13, LOW);
 		}
-		Serial.println("DISABLE: " + String(millis() - startTime));
-	});
-	outputDisable.trigger((getDelay() + getOutput()) * 1000);
 
-	Serial.println();
+		Serial.println("DISABLE: " + String(millis() - startTime));
+
+		if(direction == DOWN) {
+			clutchOverride = false;
+			clutch.update(clutch.getEnd());
+			Serial.println("CLUTCH DISABLE: " + String(millis() - startTime));
+		}
+
+		Serial.println();
+	});
+	outputDisable.trigger((enableDelay + getOutput()) * 1000);
 }

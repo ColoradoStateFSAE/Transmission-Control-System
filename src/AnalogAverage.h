@@ -2,37 +2,30 @@
 #define MOVINGAVERAGE_H
 
 #include <Arduino.h>
+#include <RunningMedian.h>
 
 class AnalogAverage {
   public:
     AnalogAverage() {
+		pinMode(A0, INPUT);
+
+		int reading = analogRead(A0);
         for (int i = 0; i < size; i++) {
-			readings[i] = 0;
+			samples.add(reading);
 		}
     }
 
 	int value() {
-        return average;
+		return samples.getMedian();
     }
 
 	void update() {
-        total = total - readings[readIndex];
-        readings[readIndex] = analogRead(A0);
-        total = total + readings[readIndex];
-        readIndex = readIndex + 1;
-        if (readIndex >= size) {
-            readIndex = 0;
-        }
-
-        average = total / size;
+		samples.add(analogRead(A0));
     }
 
   private:
-    const static int size = 50;
-    int readings[size];
-    int readIndex = 0;
-    int total = 0;
-    int average = 0;
+	const int size = 5;
+  	RunningMedian samples = RunningMedian(5);
 };
 
 #endif

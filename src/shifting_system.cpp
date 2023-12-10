@@ -9,11 +9,11 @@
 #include "AnalogAverage.h"
 
 FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> can;
-Transmission transmission(can);
+AnalogAverage analogAverage;
 Clutch clutch(can);
+Transmission transmission(can, clutch);
 Button up(34);
 Button down(35);
-AnalogAverage analogAverage;
 Adafruit_SSD1306 oled(128, 64);
 
 void printValues();
@@ -34,48 +34,50 @@ void setup() {
 }
 
 void loop() {
-static unsigned long lastCanUpdate = 0;
+	static unsigned long lastCanUpdate = 0;
 
-CAN_message_t msg;
-if(can.readFIFO(msg)) {
-	if(msg.id == 1520) {
-		transmission.rpm(canutil::read_data(msg, 6, 2));
-		lastCanUpdate = millis();
-	} else if(msg.id == 1620) {
-		transmission.setDelay(canutil::read_data(msg, 2, 2));
-		transmission.setOutput(canutil::read_data(msg, 4, 2));
-		transmission.setTimeout(canutil::read_data(msg, 6, 2));
+	CAN_message_t msg;
+	if(can.readFIFO(msg)) {
+		if(msg.id == 1520) {
+			transmission.rpm(canutil::read_data(msg, 6, 2));
+			lastCanUpdate = millis();
+		} else if(msg.id == 1620) {
+			transmission.setDelay(canutil::read_data(msg, 2, 2));
+			transmission.setOutput(canutil::read_data(msg, 4, 2));
+			transmission.setTimeout(canutil::read_data(msg, 6, 2));
+			printValues();
+		} else if(msg.id == 1621) {
+			clutch.setStart(canutil::read_data(msg, 0, 2));
+			clutch.setEnd(canutil::read_data(msg, 2, 2));
+			clutch.setFriction(canutil::read_data(msg, 4, 2));
 		printValues();
-	} else if(msg.id == 1621) {
-		clutch.setStart(canutil::read_data(msg, 0, 2));
-		clutch.setEnd(canutil::read_data(msg, 2, 2));
-		clutch.setFriction(canutil::read_data(msg, 4, 2));
-	printValues();
-	} else if(msg.id == 1622) { // 0x657
-		clutch.write(canutil::read_data(msg, 0, 2));
+		} else if(msg.id == 1622) { // 0x657
+			clutch.write(canutil::read_data(msg, 0, 2));
+		}
 	}
-}
 
-if(millis() - lastCanUpdate >= 100) {
-	transmission.rpm(0);
-}
+	if(millis() - lastCanUpdate >= 100) {
+		transmission.rpm(0);
+	}
 
-up.update();
-down.update();
+	up.update();
+	down.update();
 
-if(up.pressed()) {
-	transmission.shift(UP);
-} else if(down.pressed()) {
-	transmission.shift(DOWN);
-}
+	if(up.pressed()) {
+		transmission.shift(UP);
+	} else if(down.pressed()) {
+		transmission.shift(DOWN);
+	}
 
-analogAverage.update();
-clutch.update(analogAverage.value());
+	analogAverage.update();
+	if(!transmission.clutchOverride) {
+		clutch.update(analogAverage.value());
+	}
 
-transmission.broadcast_gear(100);
-clutch.broadcast_values(100);
+	transmission.broadcast_gear(100);
+	clutch.broadcast_values(100);
 
-//display();
+	//display();
 }
 
 void printValues() {

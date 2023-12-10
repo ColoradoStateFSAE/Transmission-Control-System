@@ -5,8 +5,8 @@
 #include <EEPROM.h>
 #include <FlexCAN_T4.h>
 #include <TeensyTimerTool.h>
-#include "Button.h"
 #include "canutil.h"
+#include "Clutch.h"
 
 using namespace TeensyTimerTool;
 
@@ -17,8 +17,10 @@ enum {
 
 class Transmission {
   public:
+  	bool clutchOverride = false;
+	
 	Transmission() = delete;
-	Transmission(const FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> &canRef) : can(canRef) {
+	Transmission(const FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> &canRef, const Clutch &clutchRef) : can(canRef), clutch(clutchRef) {
 		pinMode(OUTPUT_PINS[0], OUTPUT);
 		pinMode(OUTPUT_PINS[1], OUTPUT);
 		pinMode(13, OUTPUT);
@@ -28,7 +30,7 @@ class Transmission {
 		uint16_t saved;
 		EEPROM.get(GEAR_ADDRESS, saved); if(saved == 0xFFFF) setGear(0);
 		EEPROM.get(DELAY_ADDRESS, saved); if(saved == 0xFFFF) setDelay(50);
-		EEPROM.get(OUTPUT_ADDRESS, saved); if(saved == 0xFFFF) setOutput(40);
+		EEPROM.get(OUTPUT_ADDRESS, saved); if(saved == 0xFFFF) setOutput(50);
 		EEPROM.get(TIMEOUT_ADDRESS, saved); if(saved == 0xFFFF) setTimeout(200);
 	}
 
@@ -50,7 +52,7 @@ class Transmission {
 	void broadcast_gear(unsigned long frequency=0);
 	void shift(int direction);
 
-	private:
+  private:
 	const int OUTPUT_PINS[2] = {41, 40}; // {up, down}
 
 	const int GEAR_ADDRESS = 0;
@@ -58,9 +60,12 @@ class Transmission {
 	const int OUTPUT_ADDRESS = 4;
 	const int TIMEOUT_ADDRESS = 6;
 
+	const int CLUTCH_DELAY = 500;
+
 	volatile bool timeout = false;
 
 	FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> can;
+	Clutch clutch;
 
 	int rpmValue = 0;
 
