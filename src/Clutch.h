@@ -9,8 +9,7 @@
 
 class Clutch {
   public:
-	Clutch() = delete;
-	Clutch(const FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> &canRef) : can(canRef) {
+	Clutch() {
 		//for (int i = 0; i < EEPROM.length(); i++) EEPROM.write(i, 0xFF);
 
 		uint16_t saved;
@@ -31,22 +30,24 @@ class Clutch {
 	void setFriction(uint16_t value) { EEPROM.put(FRICTION_ADDRESS, value); }
 	uint16_t getFriction() { uint16_t saved; EEPROM.get(FRICTION_ADDRESS, saved); return saved; }
 
-	void broadcast_values(unsigned long frequency);
+	void setRpm(int value) { rpm = value; }
+	int getRpm() { return rpm; }
 
 	void analog_input(int value);
 	void write(int value);
+
+	bool shiftOverride = false;
 
   private:
 	const int START_ADDRESS = 8;
 	const int END_ADDRESS = 10;
 	const int FRICTION_ADDRESS = 12;
-
-	FlexCAN_T4<CAN3> can;
-
+	
 	Servo servo;
 
 	int analogMin = INT_MAX;
 	int analogMax = INT_MIN;
+	int rpm = 1000;
 };
 
 #endif

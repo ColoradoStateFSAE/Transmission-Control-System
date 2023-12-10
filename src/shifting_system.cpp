@@ -9,13 +9,14 @@
 #include "AnalogAverage.h"
 
 FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> can;
-AnalogAverage analogAverage;
-Clutch clutch(can);
-Transmission transmission(can, clutch);
+AnalogAverage analogAverage(50);
+Clutch clutch;
+Transmission transmission(clutch, can);
 Button up(34);
 Button down(35);
 Adafruit_SSD1306 oled(128, 64);
 
+void broadcast_values(unsigned long frequency);
 void printValues();
 void display();
 
@@ -39,7 +40,7 @@ void loop() {
 	CAN_message_t msg;
 	if(can.readFIFO(msg)) {
 		if(msg.id == 1520) {
-			transmission.rpm(canutil::read_data(msg, 6, 2));
+			transmission.setRpm(canutil::read_data(msg, 6, 2));
 			lastCanUpdate = millis();
 		} else if(msg.id == 1620) {
 			transmission.setDelay(canutil::read_data(msg, 2, 2));
@@ -57,7 +58,8 @@ void loop() {
 	}
 
 	if(millis() - lastCanUpdate >= 100) {
-		transmission.rpm(0);
+		transmission.setRpm(0);
+		clutch.setRpm(0);
 	}
 
 	up.update();
@@ -70,12 +72,10 @@ void loop() {
 	}
 
 	analogAverage.update();
-	if(!transmission.clutchOverride) {
-		clutch.analog_input(analogAverage.value());
-	}
+	clutch.analog_input(analogAverage.value());
 
 	transmission.broadcast_gear(100);
-	clutch.broadcast_values(100);
+	broadcast_values(500);
 
 	//display();
 }
@@ -101,9 +101,23 @@ void display() {
 		oled.setTextColor(WHITE);
 		oled.setTextSize(2);
 		oled.println(transmission.getGear());
-		oled.println(transmission.rpm());
+		oled.println(transmission.getRpm());
 		oled.setTextSize(0);
 		oled.println(millis()/1000.0, 1);
 		oled.display();
+	}
+}
+
+void broadcast_values(unsigned long frequency) {
+	static unsigned long lastBroadastTime = 0;
+	if (millis() - lastBroadastTime >= frequency) {
+		lastBroadastTime = millis();
+
+		CAN_message_t msg;
+		msg.id = 1621;
+		canutil::construct_data(msg, clutch.getStart(), 0, 2);
+		canutil::construct_data(msg, clutch.getEnd(), 2, 2);
+		canutil::construct_data(msg, clutch.getFriction(), 4, 2);
+		can.write(msg);
 	}
 }

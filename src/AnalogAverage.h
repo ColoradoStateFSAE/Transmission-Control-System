@@ -6,25 +6,20 @@
 
 class AnalogAverage {
   public:
-	AnalogAverage() {
+	AnalogAverage(int size) : size(size) {
 		pinMode(A0, INPUT);
 
-	for (int i = 0; i < size; i++) {
+		for (int i = 0; i < size; i++) {
 			samples.add(analogRead(A0));
 		}
 	}
 
-	int value() {
-		return samples.getMedian();
-	}
-
-	void update() {
-		samples.add(analogRead(A0));
-	}
+	int value();
+	void update();
 
   private:
-	const int size = 50;
-	RunningMedian samples = RunningMedian(5);
+	const int size;
+	RunningMedian samples = RunningMedian(size);
 };
 
 #endif

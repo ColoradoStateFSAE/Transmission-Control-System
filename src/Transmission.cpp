@@ -26,18 +26,9 @@ void Transmission::shift(int direction) {
 		Serial.println("Attempted to shift before timeout: " + String(millis() - lastShift) + '\n');
 		return;
 	}
-
-	if(direction == UP) {
-		Serial.println("UP");
-	} else {
-		Serial.println("DOWN");
-	}
-
 	lastShift = millis();
 
-	startTime = millis();
-
-	if(rpm() == 0) {
+	if(getRpm() == 0) {
 		setGear(0);
 	} else if(direction == UP && getGear() == 0) {
 		setGear(2);
@@ -49,6 +40,13 @@ void Transmission::shift(int direction) {
 		setGear(getGear()-1);
 	}
 
+	if(direction == UP) {
+		Serial.println("UP");
+	} else {
+		Serial.println("DOWN");
+	}
+
+	startTime = millis();
 	disable_combustion();
 	power_solenoid(direction);
 	broadcast_gear();
@@ -70,30 +68,27 @@ void Transmission::power_solenoid(int direction) {
 
 	if(direction == DOWN) {
 		enableDelay = CLUTCH_DELAY;
-		clutchOverride = true;
+		clutch.shiftOverride = true;
 		clutch.write(clutch.getEnd());
+		Serial.println("SERVO ENABLE: " + String(millis() - startTime));
 	}
 
 	// Create an interrupt timer to enable the solenoid
 	outputEnable.begin([this, outputPin] {
-		if(rpm() >= 500) {
-			digitalWrite(outputPin, HIGH);
-		}
+		if(getRpm() >= 500) { digitalWrite(outputPin, HIGH); }
 		Serial.println("SOLENOID ENABLE: " + String(millis() - startTime));
 	});
 	outputEnable.trigger(enableDelay * 1000);
 
 	// Create an interrupt timer to disable the solenoid
 	outputDisable.begin([this, outputPin, direction] {
-		if(rpm() >= 500) { 
-			digitalWrite(outputPin, LOW);
-		}
-
+		if(getRpm() >= 500) { digitalWrite(outputPin, LOW); }
 		Serial.println("SOLENOID DISABLE: " + String(millis() - startTime));
 
 		if(direction == DOWN) {
-			clutchOverride = false;
 			clutch.write(clutch.getStart());
+			clutch.shiftOverride = false;
+			Serial.println("SERVO DISABLE: " + String(millis() - startTime));
 		}
 
 		Serial.println();
