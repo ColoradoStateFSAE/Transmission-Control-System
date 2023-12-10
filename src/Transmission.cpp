@@ -81,7 +81,7 @@ void Transmission::power_solenoid(int direction) {
 		if(rpm() >= 500) {
 			digitalWrite(outputPin, HIGH);
 		}
-		Serial.println("ENABLE: " + String(millis() - startTime));
+		Serial.println("SOLENOID ENABLE: " + String(millis() - startTime));
 	});
 	outputEnable.trigger(enableDelay * 1000);
 
@@ -91,11 +91,11 @@ void Transmission::power_solenoid(int direction) {
 			digitalWrite(outputPin, LOW);
 		}
 
-		Serial.println("DISABLE: " + String(millis() - startTime));
+		Serial.println("SOLENOID DISABLE: " + String(millis() - startTime));
 
 		if(direction == DOWN) {
 			clutchOverride = false;
-			clutch.update(clutch.getEnd());
+			clutch.update(clutch.getStart());
 			Serial.println("CLUTCH DISABLE: " + String(millis() - startTime));
 		}
 
