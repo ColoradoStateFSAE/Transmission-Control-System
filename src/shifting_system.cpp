@@ -27,6 +27,8 @@ void setup() {
   can.setFIFOFilterRange(2, 1620, 1640, STD);
 
   oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+
+
 }
 
 Button up(34);
@@ -55,6 +57,7 @@ void loop() {
     } else if(msg.id == 1622) { // 0x657
       clutch.write(canutil::read_data(msg, 0, 2));
     }
+
   }
   
   if(millis() - lastCanUpdate >= 100) {
@@ -69,6 +72,8 @@ void loop() {
   } else if(down.pressed()) {
     transmission.shift(DOWN);
   }
+
+  clutch.position(analogRead(A0));
 
   transmission.broadcast_gear(100);
   clutch.broadcast_values(100);

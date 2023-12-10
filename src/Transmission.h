@@ -28,7 +28,7 @@ class Transmission {
       uint16_t saved;
       EEPROM.get(GEAR_ADDRESS, saved); if(saved == 0xFFFF) setGear(0);
       EEPROM.get(DELAY_ADDRESS, saved); if(saved == 0xFFFF) setDelay(50);
-      EEPROM.get(OUTPUT_ADDRESS, saved); if(saved == 0xFFFF) setOutput(70);
+      EEPROM.get(OUTPUT_ADDRESS, saved); if(saved == 0xFFFF) setOutput(40);
       EEPROM.get(TIMEOUT_ADDRESS, saved); if(saved == 0xFFFF) setTimeout(200);
     }
 
