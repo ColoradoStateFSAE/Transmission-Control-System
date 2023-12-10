@@ -24,7 +24,7 @@ class AnalogAverage {
     }
 
   private:
-	const int size = 5;
+	const int size = 50;
   	RunningMedian samples = RunningMedian(5);
 };
 
