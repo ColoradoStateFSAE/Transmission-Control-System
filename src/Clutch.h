@@ -11,6 +11,8 @@ class Clutch {
   public:
 	Clutch() = delete;
 	Clutch(const FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> &canRef) : can(canRef) {
+		//for (int i = 0; i < EEPROM.length(); i++) EEPROM.write(i, 0xFF);
+
 		uint16_t saved;
 		EEPROM.get(START_ADDRESS, saved); if(saved == 0xFFFF) setStart(112);
 		EEPROM.get(END_ADDRESS, saved); if(saved == 0xFFFF) setEnd(60);
@@ -29,11 +31,10 @@ class Clutch {
 	void setFriction(uint16_t value) { EEPROM.put(FRICTION_ADDRESS, value); }
 	uint16_t getFriction() { uint16_t saved; EEPROM.get(FRICTION_ADDRESS, saved); return saved; }
 
-	void write(int value);
-
 	void broadcast_values(unsigned long frequency);
 
-	void update(int value);
+	void analog_input(int value);
+	void write(int value);
 
   private:
 	const int START_ADDRESS = 8;

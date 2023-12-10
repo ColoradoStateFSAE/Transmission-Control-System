@@ -17,7 +17,7 @@ enum {
 
 class Transmission {
   public:
-  	bool clutchOverride = false;
+	bool clutchOverride = false;
 	
 	Transmission() = delete;
 	Transmission(const FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> &canRef, const Clutch &clutchRef) : can(canRef), clutch(clutchRef) {
@@ -25,13 +25,11 @@ class Transmission {
 		pinMode(OUTPUT_PINS[1], OUTPUT);
 		pinMode(13, OUTPUT);
 
-		// for (int i = 0; i < EEPROM.length(); i++) EEPROM.write(i, 0xFF);
-
 		uint16_t saved;
 		EEPROM.get(GEAR_ADDRESS, saved); if(saved == 0xFFFF) setGear(0);
 		EEPROM.get(DELAY_ADDRESS, saved); if(saved == 0xFFFF) setDelay(50);
 		EEPROM.get(OUTPUT_ADDRESS, saved); if(saved == 0xFFFF) setOutput(50);
-		EEPROM.get(TIMEOUT_ADDRESS, saved); if(saved == 0xFFFF) setTimeout(200);
+		EEPROM.get(TIMEOUT_ADDRESS, saved); if(saved == 0xFFFF) setTimeout(550);
 	}
 
 	void setGear(uint16_t value) { EEPROM.put(GEAR_ADDRESS, value); }
@@ -62,12 +60,12 @@ class Transmission {
 
 	const int CLUTCH_DELAY = 500;
 
-	volatile bool timeout = false;
-
 	FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> can;
 	Clutch clutch;
 
 	int rpmValue = 0;
+	volatile bool timeout = false;
+	unsigned long startTime = 0;
 
 	void disable_combustion();
 	void power_solenoid(int direction);

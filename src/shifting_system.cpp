@@ -71,7 +71,7 @@ void loop() {
 
 	analogAverage.update();
 	if(!transmission.clutchOverride) {
-		clutch.update(analogAverage.value());
+		clutch.analog_input(analogAverage.value());
 	}
 
 	transmission.broadcast_gear(100);

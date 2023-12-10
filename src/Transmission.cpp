@@ -5,8 +5,6 @@ using namespace TeensyTimerTool;
 OneShotTimer outputEnable(GPT1);
 OneShotTimer outputDisable(GPT2);
 
-unsigned long startTime = 0;
-
 void Transmission::broadcast_gear(unsigned long frequency) {
 	static unsigned long lastBroadastTime = 0;
 	if (millis() - lastBroadastTime >= frequency) {
@@ -25,7 +23,7 @@ void Transmission::broadcast_gear(unsigned long frequency) {
 void Transmission::shift(int direction) {
 	static unsigned long lastShift = 0;
 	if((millis() - lastShift) < getTimeout()) {
-		Serial.println("Attempted to shift before timeout: " + String(millis() - lastShift)); 
+		Serial.println("Attempted to shift before timeout: " + String(millis() - lastShift) + '\n');
 		return;
 	}
 
@@ -62,6 +60,7 @@ void Transmission::disable_combustion() {
 	msg.buf[0] = 0b00000000; can.write(msg);
 	msg.buf[0] = 0b00000001; can.write(msg);
 	msg.buf[0] = 0b00000000; can.write(msg);
+	Serial.println("DISABLE COMBUSTION: " + String(millis() - startTime));
 }
 
 void Transmission::power_solenoid(int direction) {
@@ -70,10 +69,9 @@ void Transmission::power_solenoid(int direction) {
 	int enableDelay = getDelay();
 
 	if(direction == DOWN) {
-		Serial.println("CLUTCH ENABLE: " + String(millis() - startTime));
 		enableDelay = CLUTCH_DELAY;
 		clutchOverride = true;
-		clutch.update(clutch.getEnd());
+		clutch.write(clutch.getEnd());
 	}
 
 	// Create an interrupt timer to enable the solenoid
@@ -95,8 +93,7 @@ void Transmission::power_solenoid(int direction) {
 
 		if(direction == DOWN) {
 			clutchOverride = false;
-			clutch.update(clutch.getStart());
-			Serial.println("CLUTCH DISABLE: " + String(millis() - startTime));
+			clutch.write(clutch.getStart());
 		}
 
 		Serial.println();
