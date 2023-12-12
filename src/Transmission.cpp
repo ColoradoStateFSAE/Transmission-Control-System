@@ -69,7 +69,7 @@ void Transmission::power_solenoid(int direction) {
 	if(direction == DOWN) {
 		enableDelay = CLUTCH_DELAY;
 		clutch.shiftOverride = true;
-		clutch.write(clutch.getEnd());
+		clutch.writeMicroseconds(clutch.getEnd());
 		Serial.println("SERVO ENABLE: " + String(millis() - startTime));
 	}
 
@@ -86,7 +86,7 @@ void Transmission::power_solenoid(int direction) {
 		Serial.println("SOLENOID DISABLE: " + String(millis() - startTime));
 
 		if(direction == DOWN) {
-			clutch.write(clutch.getStart());
+			clutch.writeMicroseconds(clutch.getStart());
 			clutch.shiftOverride = false;
 			Serial.println("SERVO DISABLE: " + String(millis() - startTime));
 		}

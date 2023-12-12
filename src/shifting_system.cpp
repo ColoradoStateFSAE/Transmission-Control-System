@@ -53,7 +53,7 @@ void loop() {
 			clutch.setFriction(canutil::read_data(msg, 4, 2));
 		printValues();
 		} else if(msg.id == 1622) { // 0x657
-			clutch.write(canutil::read_data(msg, 0, 2));
+			clutch.writeMicroseconds(canutil::read_data(msg, 0, 2));
 		}
 	}
 

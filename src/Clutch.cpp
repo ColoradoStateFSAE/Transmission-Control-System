@@ -1,10 +1,8 @@
 #include "Clutch.h"
 
-void Clutch::write(int value) {
-	if(value > getStart()) value = getStart();
-	if(value < getEnd()) value = getEnd();
-
-	servo.write(value);
+void Clutch::writeMicroseconds(int value) {
+	value = constrain(value, getEnd(), getStart());
+	servo.writeMicroseconds(value);
 }
 
 void Clutch::analog_input(int value) {
@@ -18,14 +16,23 @@ void Clutch::analog_input(int value) {
 	int threshold = analogMax * 0.9;
 	int servoValue = getStart();
 
-	if(value <= threshold) {
-		servoValue = map(value, threshold, analogMin, getFriction(), getEnd());
-	} else if(200 < getRpm() && getRpm() < 3000) {
-		servoValue = getEnd();
+	if(2000 >= millis() - lastThreshold) {
+		servoValue = getFriction();
 	}
 
-	if(servoValue > getStart()) servoValue = getStart();
-	if(servoValue < getEnd()) servoValue = getEnd();
+	if(value <= threshold) {
+		servoValue = map(value, threshold, analogMin, getFriction(), getEnd());
+		lastThreshold = millis();
+	} else if(200 < getRpm() && getRpm() < 3000) {
+		servoValue = getEnd();
+		lastThreshold = millis();
+	}
 
-	servo.write(servoValue);
+	// static unsigned long lastPrint = millis();
+	// if(millis() - lastPrint > 400) {
+	// 	Serial.println(servoValue);
+	// 	lastPrint = millis();
+	// }
+
+	writeMicroseconds(servoValue);
 }
