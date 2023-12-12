@@ -4,8 +4,8 @@
 #include <Arduino.h>
 #include <EEPROM.h>
 #include <Servo.h>
-#include "canutil.h"
 #include <limits.h>
+#include "canutil.h"
 
 class Clutch {
   public:
@@ -13,16 +13,12 @@ class Clutch {
 		//for (int i = 0; i < EEPROM.length(); i++) EEPROM.write(i, 0xFF);
 
 		uint16_t saved;
-		EEPROM.get(START_ADDRESS, saved); if(saved == 0xFFFF) setStart(1622);
-		EEPROM.get(END_ADDRESS, saved); if(saved == 0xFFFF) setEnd(1372);
-		EEPROM.get(FRICTION_ADDRESS, saved); if(saved == 0xFFFF) setFriction(1444);
-
-		setStart(1622);
-		setEnd(1372);
-		setFriction(1444);
+		EEPROM.get(START_ADDRESS, saved); if(saved == 0xFFFF) setStart(1690);
+		EEPROM.get(END_ADDRESS, saved); if(saved == 0xFFFF) setEnd(1300);
+		EEPROM.get(FRICTION_ADDRESS, saved); if(saved == 0xFFFF) setFriction(1480);
 
 		servo.attach(0);
-		servo.write(getStart());
+		servo.writeMicroseconds(getStart());
 	}
 
 	void setStart(uint16_t value) { EEPROM.put(START_ADDRESS, value); }

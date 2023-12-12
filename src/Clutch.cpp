@@ -12,13 +12,14 @@ void Clutch::analog_input(int value) {
 
 	if(value > analogMax) { analogMax = value; }
 	if(value < analogMin) { analogMin = value; }
+    if(analogMax - analogMin < 20) { analogMin = analogMin - 20; }
 
-	int threshold = analogMax * 0.9;
+	int threshold = analogMax - (analogMax - analogMin) * 0.08;
 	int servoValue = getStart();
 
-	if(2000 >= millis() - lastThreshold) {
-		servoValue = getFriction();
-	}
+	// if(1000 >= millis() - lastThreshold) {
+	// 	servoValue = getFriction();
+	// }
 
 	if(value <= threshold) {
 		servoValue = map(value, threshold, analogMin, getFriction(), getEnd());
@@ -27,12 +28,6 @@ void Clutch::analog_input(int value) {
 		servoValue = getEnd();
 		lastThreshold = millis();
 	}
-
-	// static unsigned long lastPrint = millis();
-	// if(millis() - lastPrint > 400) {
-	// 	Serial.println(servoValue);
-	// 	lastPrint = millis();
-	// }
 
 	writeMicroseconds(servoValue);
 }

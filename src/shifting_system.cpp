@@ -9,7 +9,7 @@
 #include "AnalogAverage.h"
 
 FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> can;
-AnalogAverage analogAverage(50);
+AnalogAverage analogAverage(20);
 Clutch clutch;
 Transmission transmission(clutch, can);
 Button up(34);
