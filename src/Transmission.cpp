@@ -10,13 +10,18 @@ void Transmission::broadcast_gear(unsigned long frequency) {
 	if (millis() - lastBroadastTime >= frequency) {
 		lastBroadastTime = millis();
 
-		CAN_message_t msg;
-		msg.id = 1620;
-		canutil::construct_data(msg, getGear(), 0, 1);
-		canutil::construct_data(msg, getDelay(), 2, 2);
-		canutil::construct_data(msg, getOutput(), 4, 2);
-		canutil::construct_data(msg, getTimeout(), 6, 2);
-		can.write(msg);
+		CAN_message_t gear;
+		gear.id = 1620;
+		canutil::construct_data(gear, getGear(), 0, 1);
+		can.write(gear);
+
+		CAN_message_t timing;
+		timing.id = 1621;
+		canutil::construct_data(timing, getUpDelay(), 0, 2);
+		canutil::construct_data(timing, getDownDelay(), 2, 2);
+		canutil::construct_data(timing, getOutput(), 4, 2);
+		canutil::construct_data(timing, getTimeout(), 6, 2);
+		can.write(timing);
 	}
 }
 
@@ -64,10 +69,10 @@ void Transmission::disable_combustion() {
 void Transmission::power_solenoid(int direction) {
 	int outputPin = OUTPUT_PINS[direction];
 
-	int enableDelay = getDelay();
+	int enableDelay = getUpDelay();
 
 	if(direction == DOWN) {
-		enableDelay = CLUTCH_DELAY;
+		enableDelay = getDownDelay();
 		clutch.shiftOverride = true;
 		clutch.writeMicroseconds(clutch.getEnd());
 		Serial.println("SERVO ENABLE: " + String(millis() - startTime));

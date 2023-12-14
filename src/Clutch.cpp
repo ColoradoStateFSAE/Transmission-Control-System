@@ -2,6 +2,7 @@
 
 void Clutch::writeMicroseconds(int value) {
 	value = constrain(value, getEnd(), getStart());
+	position = value;
 	servo.writeMicroseconds(value);
 }
 

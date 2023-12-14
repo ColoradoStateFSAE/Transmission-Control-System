@@ -10,7 +10,7 @@
 class Clutch {
   public:
 	Clutch() {
-		//for (int i = 0; i < EEPROM.length(); i++) EEPROM.write(i, 0xFF);
+		for (int i = 0; i < EEPROM.length(); i++) EEPROM.write(i, 0xFF);
 
 		uint16_t saved;
 		EEPROM.get(START_ADDRESS, saved); if(saved == 0xFFFF) setStart(1690);
@@ -30,6 +30,8 @@ class Clutch {
 	void setFriction(uint16_t value) { EEPROM.put(FRICTION_ADDRESS, value); }
 	uint16_t getFriction() { uint16_t saved; EEPROM.get(FRICTION_ADDRESS, saved); return saved; }
 
+	int getPosition() { return position; }
+
 	void setRpm(int value) { rpm = value; }
 	int getRpm() { return rpm; }
 
@@ -39,9 +41,9 @@ class Clutch {
 	bool shiftOverride = false;
 
   private:
-	const int START_ADDRESS = 8;
-	const int END_ADDRESS = 10;
-	const int FRICTION_ADDRESS = 12;
+	const int START_ADDRESS = 10;
+	const int END_ADDRESS = 12;
+	const int FRICTION_ADDRESS = 14;
 	
 	Servo servo;
 
@@ -52,6 +54,7 @@ class Clutch {
 	int analogMax = INT_MIN;
 	int rpm = 1000;
 	unsigned long lastThreshold = 0;
+	int position = 0;
 };
 
 #endif

@@ -25,16 +25,20 @@ class Transmission {
 
 		uint16_t saved;
 		EEPROM.get(GEAR_ADDRESS, saved); if(saved == 0xFFFF) setGear(0);
-		EEPROM.get(DELAY_ADDRESS, saved); if(saved == 0xFFFF) setDelay(50);
+		EEPROM.get(UP_DELAY_ADDRESS, saved); if(saved == 0xFFFF) setUpDelay(50);
+		EEPROM.get(DOWN_DELAY_ADDRESS, saved); if(saved == 0xFFFF) setDownDelay(200);
 		EEPROM.get(OUTPUT_ADDRESS, saved); if(saved == 0xFFFF) setOutput(50);
-		EEPROM.get(TIMEOUT_ADDRESS, saved); if(saved == 0xFFFF) setTimeout(550);
+		EEPROM.get(TIMEOUT_ADDRESS, saved); if(saved == 0xFFFF) setTimeout(500);
 	}
 
 	void setGear(uint16_t value) { EEPROM.put(GEAR_ADDRESS, value); }
 	uint16_t getGear() { uint16_t saved; EEPROM.get(GEAR_ADDRESS, saved); return saved; }
 
-	void setDelay(uint16_t value) { EEPROM.put(DELAY_ADDRESS, value); }
-	uint16_t getDelay() { uint16_t saved; EEPROM.get(DELAY_ADDRESS, saved); return saved; }
+	void setUpDelay(uint16_t value) { EEPROM.put(UP_DELAY_ADDRESS, value); }
+	uint16_t getUpDelay() { uint16_t saved; EEPROM.get(UP_DELAY_ADDRESS, saved); return saved; }
+
+	void setDownDelay(uint16_t value) { EEPROM.put(DOWN_DELAY_ADDRESS, value); }
+	uint16_t getDownDelay() { uint16_t saved; EEPROM.get(DOWN_DELAY_ADDRESS, saved); return saved; }
 
 	void setOutput(uint16_t value) { EEPROM.put(OUTPUT_ADDRESS, value); }
 	uint16_t getOutput() { uint16_t saved; EEPROM.get(OUTPUT_ADDRESS, saved); return saved; }
@@ -52,9 +56,10 @@ class Transmission {
 	const int OUTPUT_PINS[2] = {41, 40}; // {up, down}
 
 	const int GEAR_ADDRESS = 0;
-	const int DELAY_ADDRESS = 2;
-	const int OUTPUT_ADDRESS = 4;
-	const int TIMEOUT_ADDRESS = 6;
+	const int UP_DELAY_ADDRESS = 2;
+	const int DOWN_DELAY_ADDRESS = 4;
+	const int OUTPUT_ADDRESS = 6;
+	const int TIMEOUT_ADDRESS = 8;
 
 	const int CLUTCH_DELAY = 500;
 

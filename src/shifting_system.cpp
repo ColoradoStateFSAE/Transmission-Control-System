@@ -16,7 +16,7 @@ Button up(34);
 Button down(35);
 Adafruit_SSD1306 oled(128, 64);
 
-void broadcast_values(unsigned long frequency);
+void broadcast_clutch(unsigned long frequency);
 void printValues();
 void display();
 
@@ -42,18 +42,22 @@ void loop() {
 		if(msg.id == 1520) {
 			transmission.setRpm(canutil::read_data(msg, 6, 2));
 			lastCanUpdate = millis();
-		} else if(msg.id == 1620) {
-			transmission.setDelay(canutil::read_data(msg, 2, 2));
+		} else if(msg.id == 1621) {
+			transmission.setUpDelay(canutil::read_data(msg, 0, 2));
+			transmission.setDownDelay(canutil::read_data(msg, 2, 2));
 			transmission.setOutput(canutil::read_data(msg, 4, 2));
 			transmission.setTimeout(canutil::read_data(msg, 6, 2));
 			printValues();
-		} else if(msg.id == 1621) {
+		} else if(msg.id == 1622) {
 			clutch.setStart(canutil::read_data(msg, 0, 2));
 			clutch.setEnd(canutil::read_data(msg, 2, 2));
 			clutch.setFriction(canutil::read_data(msg, 4, 2));
-		printValues();
-		} else if(msg.id == 1622) { // 0x657
+			printValues();
+		} else if(msg.id == 1623) {
+			clutch.shiftOverride = true;
 			clutch.writeMicroseconds(canutil::read_data(msg, 0, 2));
+		} else if(msg.id == 1624) {
+			clutch.shiftOverride = false;
 		}
 	}
 
@@ -75,20 +79,21 @@ void loop() {
 	clutch.analog_input(analogAverage.value());
 
 	transmission.broadcast_gear(100);
-	broadcast_values(500);
+	broadcast_clutch(500);
 
 	//display();
 }
 
 void printValues() {
-	//Serial.println("SHIFT");
-	Serial.println("DELAY: " + String(transmission.getDelay()));
-	Serial.println("OUTPUT: " + String(transmission.getOutput()));
-	Serial.println("TIMEOUT: " + String(transmission.getTimeout()));
-	//Serial.println("CLUTCH");
-	Serial.println("CLUTCH START: " + String(clutch.getStart()));
-	Serial.println("CLUTCH END: " + String(clutch.getEnd()));
-	Serial.println("FRICTION POINT: " + String(clutch.getFriction()));
+	Serial.println("SHIFT");
+	Serial.println("> UP DELAY: " + String(transmission.getUpDelay()));
+	Serial.println("> DOWN DELAY: " + String(transmission.getDownDelay()));
+	Serial.println("> OUTPUT: " + String(transmission.getOutput()));
+	Serial.println("> TIMEOUT: " + String(transmission.getTimeout()));
+	Serial.println("CLUTCH");
+	Serial.println("> CLUTCH START: " + String(clutch.getStart()));
+	Serial.println("> CLUTCH END: " + String(clutch.getEnd()));
+	Serial.println("> FRICTION POINT: " + String(clutch.getFriction()));
 	Serial.println("");
 }
 
@@ -108,16 +113,17 @@ void display() {
 	}
 }
 
-void broadcast_values(unsigned long frequency) {
+void broadcast_clutch(unsigned long frequency) {
 	static unsigned long lastBroadastTime = 0;
 	if (millis() - lastBroadastTime >= frequency) {
 		lastBroadastTime = millis();
 
 		CAN_message_t msg;
-		msg.id = 1621;
+		msg.id = 1622;
 		canutil::construct_data(msg, clutch.getStart(), 0, 2);
 		canutil::construct_data(msg, clutch.getEnd(), 2, 2);
 		canutil::construct_data(msg, clutch.getFriction(), 4, 2);
+		canutil::construct_data(msg, clutch.getPosition(), 6, 2);
 		can.write(msg);
 	}
 }
