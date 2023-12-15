@@ -7,6 +7,7 @@
 #include "Clutch.h"
 #include "Button.h"
 #include "AnalogAverage.h"
+#include "Neutral.h"
 
 FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> can;
 AnalogAverage analogAverage(20);
@@ -34,9 +35,9 @@ void setup() {
 	oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 }
 
+
 void loop() {
 	static unsigned long lastCanUpdate = 0;
-
 	CAN_message_t msg;
 	if(can.readFIFO(msg)) {
 		if(msg.id == 1520) {
@@ -68,12 +69,17 @@ void loop() {
 
 	up.update();
 	down.update();
+  neutral.update();
 
 	if(up.pressed()) {
 		transmission.shift(UP);
 	} else if(down.pressed()) {
 		transmission.shift(DOWN);
 	}
+  
+    if(neutral.engaged()) {
+    Serial.println("NEUTRAL");
+  }
 
 	analogAverage.update();
 	clutch.analog_input(analogAverage.value());
@@ -81,7 +87,7 @@ void loop() {
 	transmission.broadcast_gear(100);
 	broadcast_clutch(500);
 
-	//display();
+	display();
 }
 
 void printValues() {
@@ -98,18 +104,25 @@ void printValues() {
 }
 
 void display() {
-	static long lastDisplayTime = 0;
-	if(millis() - lastDisplayTime >= 500) {
-		lastDisplayTime = millis();
-		oled.clearDisplay();
-		oled.setCursor(0, 0);
-		oled.setTextColor(WHITE);
-		oled.setTextSize(2);
-		oled.println(transmission.getGear());
-		oled.println(transmission.getRpm());
-		oled.setTextSize(0);
-		oled.println(millis()/1000.0, 1);
-		oled.display();
+  static long lastDisplayTime = 0;
+  if(millis() - lastDisplayTime >= 100) {
+    lastDisplayTime = millis();
+    oled.clearDisplay();
+    oled.setCursor(0, 0);
+    oled.setTextColor(WHITE);
+    oled.setTextSize(0);
+    oled.println("");
+    oled.setTextSize(3);
+    oled.print("GEAR:");
+    oled.println(transmission.getGear());
+    oled.setTextSize(0);
+    oled.println("");
+    oled.setTextSize(3);
+    oled.print("RPM:");
+    oled.println(transmission.rpm());
+    //oled.setTextSize(0);
+    //oled.println(millis()/1000.0, 1);
+    oled.display();
 	}
 }
 

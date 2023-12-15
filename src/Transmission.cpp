@@ -67,6 +67,7 @@ void Transmission::disable_combustion() {
 }
 
 void Transmission::power_solenoid(int direction) {
+
 	int outputPin = OUTPUT_PINS[direction];
 
 	int enableDelay = getUpDelay();

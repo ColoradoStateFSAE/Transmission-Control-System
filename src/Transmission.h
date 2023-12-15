@@ -70,8 +70,9 @@ class Transmission {
 	volatile bool timeout = false;
 	unsigned long startTime = 0;
 
-	void disable_combustion();
-	void power_solenoid(int direction);
+    void disable_combustion();
+    void power_solenoid(int direction);
+    void check_neutral(bool neutral);
 };
 
 #endif
