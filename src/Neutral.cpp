@@ -3,7 +3,7 @@
 Neutral::Neutral(int pin, int debounce){
     neutralPin = pin;
     debounceDelay = debounce;
-    pinMode(neutralPin, INPUT_PULLDOWN);
+    pinMode(neutralPin, INPUT_PULLUP);
 }
 
 void Neutral::update(){
@@ -19,6 +19,9 @@ void Neutral::update(){
         if (state != neutralState){
             neutralState = state;
             if (neutralState == HIGH){
+                digitalWrite(13, HIGH);
+                delay(50);
+                digitalWrite(13, LOW);
                 engaged = true;
             }
         }

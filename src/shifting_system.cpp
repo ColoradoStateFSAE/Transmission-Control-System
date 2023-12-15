@@ -68,6 +68,7 @@ void loop() {
   neutral.update();
 
   if(up.pressed()) {
+    Serial.println("UP");
     transmission.shift(UP);
   } else if(down.pressed()) {
     transmission.shift(DOWN);
@@ -75,7 +76,7 @@ void loop() {
   
 
   if(neutral.engaged()) {
-    Serial.println("Neutral");
+    Serial.println("NEUTRAL");
   }
 
   transmission.broadcast_gear(100);
