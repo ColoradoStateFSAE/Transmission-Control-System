@@ -4,71 +4,57 @@
 #include <Arduino.h>
 #include <EEPROM.h>
 #include <Servo.h>
+#include <limits.h>
 #include "canutil.h"
 
 class Clutch {
   public:
-    Clutch() = delete;
-    Clutch(const FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> &canRef) : can(canRef) {
-      uint16_t saved;
-      EEPROM.get(START_ADDRESS, saved); if(saved == 0xFFFF) setStart(114);
-      EEPROM.get(END_ADDRESS, saved); if(saved == 0xFFFF) setEnd(65);
-      EEPROM.get(FRICTION_ADDRESS, saved); if(saved == 0xFFFF) setFriction(60);
+	Clutch() {
+		for (int i = 0; i < EEPROM.length(); i++) EEPROM.write(i, 0xFF);
 
-      servo.attach(0);
-    }
+		uint16_t saved;
+		EEPROM.get(START_ADDRESS, saved); if(saved == 0xFFFF) setStart(1690);
+		EEPROM.get(END_ADDRESS, saved); if(saved == 0xFFFF) setEnd(1300);
+		EEPROM.get(FRICTION_ADDRESS, saved); if(saved == 0xFFFF) setFriction(1480);
 
-    void setStart(uint16_t value) { EEPROM.put(START_ADDRESS, value); }
-    uint16_t getStart() { uint16_t saved; EEPROM.get(START_ADDRESS, saved); return saved; }
+		servo.attach(0);
+		servo.writeMicroseconds(getStart());
+	}
 
-    void setEnd(uint16_t value) { EEPROM.put(END_ADDRESS, value); }
-    uint16_t getEnd() { uint16_t saved; EEPROM.get(END_ADDRESS, saved); return saved; }
+	void setStart(uint16_t value) { EEPROM.put(START_ADDRESS, value); }
+	uint16_t getStart() { uint16_t saved; EEPROM.get(START_ADDRESS, saved); return saved; }
 
-    void setFriction(uint16_t value) { EEPROM.put(FRICTION_ADDRESS, value); }
-    uint16_t getFriction() { uint16_t saved; EEPROM.get(FRICTION_ADDRESS, saved); return saved; }
+	void setEnd(uint16_t value) { EEPROM.put(END_ADDRESS, value); }
+	uint16_t getEnd() { uint16_t saved; EEPROM.get(END_ADDRESS, saved); return saved; }
 
-    void write(int value) {
-        if(value > getStart()) value = getStart();
-        if(value < getEnd()) value = getEnd();
+	void setFriction(uint16_t value) { EEPROM.put(FRICTION_ADDRESS, value); }
+	uint16_t getFriction() { uint16_t saved; EEPROM.get(FRICTION_ADDRESS, saved); return saved; }
 
-        servo.write(value);
-    }
+	int getPosition() { return position; }
 
-    void broadcast_values(unsigned long frequency) {
-      static unsigned long lastBroadastTime = 0;
-      if (millis() - lastBroadastTime >= frequency) {
-        lastBroadastTime = millis();
+	void setRpm(int value) { rpm = value; }
+	int getRpm() { return rpm; }
 
-        CAN_message_t msg;
-        msg.id = 1621;
-        canutil::construct_data(msg, getStart(), 0, 2);
-        canutil::construct_data(msg, getEnd(), 2, 2);
-        canutil::construct_data(msg, getFriction(), 4, 2);
-        can.write(msg);
-      }
-    }
+	void analog_input(int value);
+	void writeMicroseconds(int value);
+
+	bool shiftOverride = false;
 
   private:
-    const int START_ADDRESS = 8;
-    const int END_ADDRESS = 10;
-    const int FRICTION_ADDRESS = 12;
+	const int START_ADDRESS = 10;
+	const int END_ADDRESS = 12;
+	const int FRICTION_ADDRESS = 14;
+	
+	Servo servo;
 
-    FlexCAN_T4<CAN3> can;
+	int min = getStart();
+	int max = getEnd();
 
-    Servo servo;
-
-    // void servoPosition(int value) {
-//   int inflectionPoint = 200;
-//   int inflectionAngle = 90;
-  
-//   if(value <= inflectionPoint) {
-//     value = map(value, 0, inflectionPoint, 0, inflectionAngle);
-//   } else {
-//     value = map(value, inflectionPoint+1, 1023, inflectionAngle, 180);
-//   }
-  
-//   servo.write(value);
-// }
+	int analogMin = INT_MAX;
+	int analogMax = INT_MIN;
+	int rpm = 1000;
+	unsigned long lastThreshold = 0;
+	int position = 0;
 };
 
 #endif

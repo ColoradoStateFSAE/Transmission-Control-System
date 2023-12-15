@@ -1,35 +1,34 @@
 #include "Button.h"
 
 Button::Button(int pin, int debounce) {
-  buttonPin = pin;
-  debounceDelay = debounce;
-  pinMode(buttonPin, INPUT_PULLUP);
+	buttonPin = pin;
+	debounceDelay = debounce;
+	pinMode(buttonPin, INPUT_PULLUP);
 }
 
 // button_pressed takes a button and returns true if it was pressed
 void Button::update() {
-  bool pressed = false;
+	bool pressed = false;
 
-  int state = digitalRead(buttonPin);
+	int state = digitalRead(buttonPin);
 
-  if (state != lastButtonState) {
-    lastDebounceTime = millis();
-  }
+	if (state != lastButtonState) {
+		lastDebounceTime = millis();
+	}
 
-  if ((millis() - lastDebounceTime) >= debounceDelay) {
-    if (state != buttonState) {
-      buttonState = state;
-      if (buttonState == LOW) {
-        pressed = true;
-      }
-    }
-  }
+	if ((millis() - lastDebounceTime) >= debounceDelay) {
+		if (state != buttonState) {
+			buttonState = state;
+			if (buttonState == LOW) {
+				pressed = true;
+			}
+		}
+	}
 
-  lastButtonState = state;
-
-  buttonPressed = pressed;
+	lastButtonState = state;
+	buttonPressed = pressed;
 }
 
 bool Button::pressed() {
-  return buttonPressed;
+	return buttonPressed;
 }
