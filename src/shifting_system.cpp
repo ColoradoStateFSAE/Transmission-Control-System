@@ -75,7 +75,7 @@ void loop() {
   transmission.broadcast_gear(100);
   clutch.broadcast_values(100);
 
-  //display();
+  display();
 }
 
 void printValues() {
@@ -92,16 +92,23 @@ void printValues() {
 
 void display() {
   static long lastDisplayTime = 0;
-  if(millis() - lastDisplayTime >= 500) {
+  if(millis() - lastDisplayTime >= 100) {
     lastDisplayTime = millis();
     oled.clearDisplay();
     oled.setCursor(0, 0);
     oled.setTextColor(WHITE);
-    oled.setTextSize(2);
-    oled.println(transmission.getGear());
-    oled.println(transmission.rpm());
     oled.setTextSize(0);
-    oled.println(millis()/1000.0, 1);
+    oled.println("");
+    oled.setTextSize(3);
+    oled.print("GEAR:");
+    oled.println(transmission.getGear());
+    oled.setTextSize(0);
+    oled.println("");
+    oled.setTextSize(3);
+    oled.print("RPM:");
+    oled.println(transmission.rpm());
+    //oled.setTextSize(0);
+    //oled.println(millis()/1000.0, 1);
     oled.display();
   }
 }
