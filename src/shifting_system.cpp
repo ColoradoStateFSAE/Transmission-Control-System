@@ -13,8 +13,8 @@ FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> can;
 AnalogAverage analogAverage(20);
 Clutch clutch;
 Transmission transmission(clutch, can);
-Button up(34);
-Button down(35);
+Button up(41);
+Button down(40);
 Neutral neutral(14);
 Adafruit_SSD1306 oled(128, 64);
 
@@ -70,7 +70,7 @@ void loop() {
 
 	up.update();
 	down.update();
-  neutral.update();
+  	neutral.update();
 
 	if(up.pressed()) {
 		transmission.shift(UP);
@@ -80,7 +80,7 @@ void loop() {
   
     if(neutral.engaged()) {
     Serial.println("NEUTRAL");
-  }
+  	}
 
 	analogAverage.update();
 	clutch.analog_input(analogAverage.value());
