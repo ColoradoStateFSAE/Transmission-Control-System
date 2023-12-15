@@ -120,7 +120,7 @@ void display() {
     oled.println("");
     oled.setTextSize(3);
     oled.print("RPM:");
-    oled.println(transmission.rpm());
+    oled.println(transmission.getRpm());
     //oled.setTextSize(0);
     //oled.println(millis()/1000.0, 1);
     oled.display();
