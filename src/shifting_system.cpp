@@ -32,7 +32,7 @@ void setup() {
 
 Button up(41);
 Button down(40);
-Neutral input(14);
+Neutral neutral(14);
 
 int i = 0;
 
@@ -65,11 +65,17 @@ void loop() {
 
   up.update();
   down.update();
+  neutral.update();
 
   if(up.pressed()) {
     transmission.shift(UP);
   } else if(down.pressed()) {
     transmission.shift(DOWN);
+  }
+  
+
+  if(neutral.engaged()) {
+    Serial.println("Neutral");
   }
 
   transmission.broadcast_gear(100);
