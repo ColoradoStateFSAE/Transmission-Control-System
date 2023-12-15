@@ -15,6 +15,7 @@ Clutch clutch;
 Transmission transmission(clutch, can);
 Button up(34);
 Button down(35);
+Neutral neutral(14);
 Adafruit_SSD1306 oled(128, 64);
 
 void broadcast_clutch(unsigned long frequency);
