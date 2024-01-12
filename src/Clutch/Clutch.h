@@ -22,9 +22,9 @@ class Clutch {
 	};
 
 	FiniteStateMachine fsm;
-	int input = 0;
+	float input = 0;
 
-	Clutch(int pin, FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> &canRef, Storage &storageRef);
+	Clutch(int _pin, FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &canRef, Storage &storageRef);
 	void writeMicroseconds(int value);
 	void broadcastValues(unsigned long frequency);
 	int position();
@@ -32,7 +32,7 @@ class Clutch {
 
   private:
 	const int pin;
-	FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> &can;
+	FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &can;
 	Storage &storage;
 	Servo servo;
 

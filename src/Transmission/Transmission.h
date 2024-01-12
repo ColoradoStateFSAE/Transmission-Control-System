@@ -31,7 +31,7 @@ class Transmission {
 	FiniteStateMachine fsm;
 
 	Transmission() = delete;
-	Transmission(Clutch &clutchRef, FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> &canRef, Storage &settingsRef);
+	Transmission(Clutch &clutchRef, FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &canRef, Storage &settingsRef);
 
 	void broadcastValues(unsigned long frequency=0);
 	void shift(int direction);
@@ -41,7 +41,7 @@ class Transmission {
 	const int OUTPUT_PINS[2] = {17, 18}; // {up, down}
 	
 	Clutch &clutch;
-	FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> &can;
+	FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &can;
 	Storage &storage;
 
 	unsigned long shiftStartTime = 0;
@@ -50,7 +50,6 @@ class Transmission {
 	void disableCombustion();
 	void upRoutine();
 	void downRoutine();
-	
 };
 
 #endif

@@ -2,7 +2,7 @@
 
 Clutch::Clutch(
 	int pin,
-	FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> &canRef,
+	FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &canRef,
 	Storage &storageRef) :
 	fsm(ANALOG_INPUT),
 	pin(pin),

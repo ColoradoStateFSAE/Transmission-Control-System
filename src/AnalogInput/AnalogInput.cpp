@@ -1,16 +1,23 @@
 #include "AnalogInput.h"
 
-AnalogInput::AnalogInput(int pin, uint8_t samples, float deadzonePercent) : pin(pin), numSamples(samples) {
-	deadzone = deadzonePercent / 100;
-
+AnalogInput::AnalogInput(int pin, uint16_t samples) : pin(pin), samples(samples) {
+	analogReadResolution(12);
 	for (int i = 0; i < samples; i++) {
-		runningMedian.add(analogRead(pin));
+		runningAverage.add(analogRead(pin));
 	}
 }
 
+void AnalogInput::minDeadzone(float percent) {
+	_minDeadzone = percent / 100;
+}
+
+void AnalogInput::maxDeadzone(float percent) {
+	_maxDeadzone = percent / 100;
+}
+
 void AnalogInput::update() {
-	runningMedian.add(analogRead(pin));
-	float average = runningMedian.getAverage();
+	runningAverage.add(analogRead(pin));
+	float average = runningAverage.getFastAverage();
 
 	// Update the maximum if a larger value is found
 	if(average > max) {
@@ -19,17 +26,15 @@ void AnalogInput::update() {
 
 	// Update the minimum if a smaller value is found
 	// and is 30 less than the maximum
-	if(average < min && average <= max- 30) {
+	if(average < min && average <= max - 30) {
 		min = average;
 	}
 
-	float deadzoneThreshold = max * (1 - deadzone);
+	float minDeadzoneScaled = min + (max - min) * (1 - _minDeadzone);
+	float maxDeadzoneScaled = max - (max - min) * (1 - _maxDeadzone);
 
-	if(average > deadzoneThreshold) {
-		percentage = 0;
-	} else {
-		percentage = map(average, min, deadzoneThreshold, 100.0f, 0.0f);
-	}
+	percentage = map(average, minDeadzoneScaled, maxDeadzoneScaled, 0.0f, 100.0f);
+	percentage = constrain(percentage, 0.0f, 100.0f);	
 }
 
 float AnalogInput::travel() {

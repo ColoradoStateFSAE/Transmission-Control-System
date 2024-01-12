@@ -8,11 +8,11 @@
 
 class CanData {
   public:
-	CanData(FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> &canRef) : can(canRef) { }
+	CanData(FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &canRef) : can(canRef) { }
 	void update(Storage &storage, Clutch &clutch);
 
 private:
-	FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> &can;
+	FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &can;
 	unsigned long lastCanUpdate = 0;
 	unsigned long lastShiftBroadastTime = 0;
 };

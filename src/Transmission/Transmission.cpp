@@ -2,7 +2,7 @@
 
 Transmission::Transmission(
 	Clutch &clutchRef,
-	FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> &canRef,
+	FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &canRef,
 	Storage &settingsRef) :
 	fsm(IDLE),
 	clutch(clutchRef),
@@ -133,7 +133,7 @@ void Transmission::downRoutine() {
 		case DOWN_ENABLE_SOLENOID: {
 			fsm.runOnce([&](){
 				Serial.println("SOLENOID ENABLE: " + String(millis() - shiftStartTime));
-				digitalWrite(OUTPUT_PINS[DOWN], HIGH);
+				if(storage.rpm() >= 500) digitalWrite(OUTPUT_PINS[DOWN], HIGH);
 				digitalWrite(13, HIGH);
 			});
 

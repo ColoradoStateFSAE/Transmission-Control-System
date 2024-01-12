@@ -9,13 +9,13 @@
 #include "Button/Button.h"
 #include "CanData/CanData.h"
 
-FlexCAN_T4<CAN3, RX_SIZE_16, TX_SIZE_16> can;
+FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> can;
 CanData canData(can);
 Display display;
 Storage storage("settings.json");
 Button up(41);
 Button down(40);
-AnalogInput analogInput(A1, 255, 5);
+AnalogInput analogInput(A1, 512);
 Clutch clutch(37, can, storage);
 Transmission transmission(clutch, can, storage);
 
@@ -35,6 +35,9 @@ void setup() {
 			display.sdError();
 		}
 	}
+
+	analogInput.minDeadzone(8);
+	analogInput.maxDeadzone(20);
 }
 
 void loop() {
