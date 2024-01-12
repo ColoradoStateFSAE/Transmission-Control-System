@@ -2,12 +2,12 @@
 #define BUTTON_H
 
 #include <Arduino.h>
-#include "Transmission.h"
 
 class Button {
   public:
 	Button() = delete;
-	Button(int pin, int debounce=5);
+	Button(int pin, int debounce=500);
+	void begin();
 	void update();
 	bool pressed();
 

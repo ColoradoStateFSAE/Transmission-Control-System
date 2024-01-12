@@ -3,20 +3,22 @@
 Button::Button(int pin, int debounce) {
 	buttonPin = pin;
 	debounceDelay = debounce;
+}
+
+void Button::begin() {
 	pinMode(buttonPin, INPUT_PULLUP);
 }
 
-// button_pressed takes a button and returns true if it was pressed
 void Button::update() {
 	bool pressed = false;
 
 	int state = digitalRead(buttonPin);
 
 	if (state != lastButtonState) {
-		lastDebounceTime = millis();
+		lastDebounceTime = micros();
 	}
 
-	if ((millis() - lastDebounceTime) >= debounceDelay) {
+	if ((micros() - lastDebounceTime) >= debounceDelay) {
 		if (state != buttonState) {
 			buttonState = state;
 			if (buttonState == LOW) {
