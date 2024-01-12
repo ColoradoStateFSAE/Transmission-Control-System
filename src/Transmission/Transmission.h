@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include <FlexCAN_T4.h>
-#include "Clutch/clutch.h"
+#include "Clutch/Clutch.h"
 #include "Storage/Storage.h"
 #include "FiniteStateMachine/FiniteStateMachine.h"
 #include "canutil/canutil.h"
