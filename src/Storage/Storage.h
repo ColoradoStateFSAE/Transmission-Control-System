@@ -4,6 +4,7 @@
 #include <ArduinoJson.h>
 #include <string>
 #include <SD.h>
+#include <vector>
 
 class Storage {
   public:
@@ -13,14 +14,27 @@ class Storage {
 	}
 
 	bool begin();
+	bool readPins();
 	void verifyJson();
 	void writeJson();
 	void readJson();
 	void print();
 
+	// Data from CAN
 	int rpm();
 	void rpm(int value);
 
+	// Pin definitions
+	int up();
+	int down();
+	int clutchLeft();
+	int clutchRight();
+	int IA();
+	int IB();
+	int servo();
+	int neutral();
+
+	// Saved values from
 	int gear();
 	void gear(int value);
 
@@ -49,10 +63,19 @@ class Storage {
 	void autoLaunch(bool value);
 
   private:
-	int JSON_SIZE = 256;
+	const size_t JSON_SIZE = 256;
 	std::string filePath;
 
 	int _rpm = 0;
+
+	int _up;
+	int _down;
+	int _clutchLeft;
+	int _clutchRight;
+	int _IA;
+	int _IB;
+	int _neutral;
+	int _servo;
 	
 	int _gear = 0;
 	int _upDelay = 50;

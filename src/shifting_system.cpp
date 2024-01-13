@@ -13,13 +13,15 @@ FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> can;
 CanData canData(can);
 Display display;
 Storage storage("settings.json");
-Button up(41);
-Button down(40);
-AnalogInput analogInput(A1, 512);
-Clutch clutch(37, can, storage);
+Button up;
+Button down;
+AnalogInput analogInput(512);
+Clutch clutch(can, storage);
 Transmission transmission(clutch, can, storage);
 
 void setup() {
+	Serial.begin(9600);
+
 	can.begin();
 	can.setBaudRate(500000);
 	can.enableFIFO(true);
@@ -36,8 +38,14 @@ void setup() {
 		}
 	}
 
+	up.begin(storage.up());
+	down.begin(storage.down());
+
+	analogInput.begin(storage.clutchRight());
 	analogInput.minDeadzone(8);
-	analogInput.maxDeadzone(20);
+	analogInput.maxDeadzone(8);
+
+	clutch.begin(storage.servo());
 }
 
 void loop() {

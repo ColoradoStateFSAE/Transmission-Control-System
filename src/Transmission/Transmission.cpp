@@ -8,8 +8,6 @@ Transmission::Transmission(
 	clutch(clutchRef),
 	can(canRef),
 	storage(settingsRef) {
-		pinMode(OUTPUT_PINS[UP], OUTPUT);
-		pinMode(OUTPUT_PINS[DOWN], OUTPUT);
 		pinMode(13, OUTPUT);
 	}
 
@@ -58,7 +56,7 @@ void Transmission::shift(int direction) {
 	if(direction == UP) {
 		Serial.println("\nUP");
 		fsm.state(UP_SPARK_CUT);
-	} else {
+	} else if(direction == DOWN) {
 		Serial.println("\nDOWN");
 		fsm.state(DOWN_CLUTCH_IN);
 	}
@@ -73,6 +71,8 @@ void Transmission::disableCombustion() {
 }
 
 void Transmission::upRoutine() {
+	int pin = storage.IA();
+
 	switch(fsm.state()) {
 		case UP_SPARK_CUT:
 			fsm.runOnce([&](){
@@ -88,7 +88,7 @@ void Transmission::upRoutine() {
 		case UP_ENABLE_SOLENOID:
 			fsm.runOnce([&](){
 				Serial.println("SOLENOID ENABLE: " + String(millis() - shiftStartTime));
-				if(storage.rpm() >= 500) digitalWrite(OUTPUT_PINS[UP], HIGH);
+				if(storage.rpm() >= 500) digitalWrite(pin, HIGH);
 				digitalWrite(13, HIGH);
 			});
 
@@ -100,7 +100,7 @@ void Transmission::upRoutine() {
 		case UP_DISABLE_SOLENOID:
 			fsm.runOnce([&](){
 				Serial.println("SOLENOID DISABLE: " + String(millis() - shiftStartTime));
-				digitalWrite(OUTPUT_PINS[UP], LOW);
+				digitalWrite(pin, LOW);
 				digitalWrite(13, LOW);
 			});
 
@@ -110,6 +110,8 @@ void Transmission::upRoutine() {
 }
 
 void Transmission::downRoutine() {
+	int pin = storage.IB();
+
 	switch(fsm.state()) {
 		case DOWN_CLUTCH_IN: {
 			fsm.runOnce([&](){
@@ -133,7 +135,7 @@ void Transmission::downRoutine() {
 		case DOWN_ENABLE_SOLENOID: {
 			fsm.runOnce([&](){
 				Serial.println("SOLENOID ENABLE: " + String(millis() - shiftStartTime));
-				if(storage.rpm() >= 500) digitalWrite(OUTPUT_PINS[DOWN], HIGH);
+				if(storage.rpm() >= 500) digitalWrite(pin, HIGH);
 				digitalWrite(13, HIGH);
 			});
 
@@ -142,12 +144,11 @@ void Transmission::downRoutine() {
 			}, DOWN_DISABLE_SOLENOID);
 			break;
 		}
-			
 
 		case DOWN_DISABLE_SOLENOID: {
 			fsm.runOnce([&](){
 				Serial.println("SOLENOID DISABLE: " + String(millis() - shiftStartTime));
-				digitalWrite(OUTPUT_PINS[DOWN], LOW);
+				digitalWrite(pin, LOW);
 				digitalWrite(13, LOW);
 			});
 
@@ -165,7 +166,6 @@ void Transmission::downRoutine() {
 			}, nextState);
 			break;
 		}
-		
 
 		case DOWN_CLUTCH_OUT: {
 			fsm.runOnce([&](){

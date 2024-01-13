@@ -1,16 +1,18 @@
 #include "Clutch.h"
 
 Clutch::Clutch(
-	int pin,
 	FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &canRef,
 	Storage &storageRef) :
 	fsm(ANALOG_INPUT),
-	pin(pin),
 	can(canRef),
 	storage(storageRef) {
-		servo.attach(pin);
-		servo.writeMicroseconds(storage.start());
+
 	}
+
+void Clutch::begin(int pin) {
+	servo.attach(pin);
+	servo.writeMicroseconds(storage.start());
+}
 
 void Clutch::writeMicroseconds(int value) {
 	value = constrain(value, storage.end(), storage.start());

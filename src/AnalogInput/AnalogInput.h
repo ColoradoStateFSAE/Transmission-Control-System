@@ -8,16 +8,17 @@
 class AnalogInput {
   public:
   	AnalogInput() = delete;
-	AnalogInput(int pin, uint16_t samples);
+	AnalogInput(uint16_t samples);
+	void begin(int pin);
 	void minDeadzone(float percent);
 	void maxDeadzone(float percent);
 	void update();
 	float travel();
 
   private:
-  	const int pin;
-	uint16_t samples;
-	RunningAverage runningAverage = RunningAverage(samples);
+  	int _pin;
+	uint16_t _samples;
+	RunningAverage runningAverage = RunningAverage(_samples);
 
 	float _minDeadzone = 0;
 	float _maxDeadzone = 0;

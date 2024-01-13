@@ -11,8 +11,8 @@
 class Transmission {
   public:
   	enum {
-		UP = 0,
-		DOWN = 1
+		UP,
+		DOWN
 	};
 
 	enum State {
@@ -37,9 +37,7 @@ class Transmission {
 	void shift(int direction);
 	void update();
 
-  private:
-	const int OUTPUT_PINS[2] = {17, 18}; // {up, down}
-	
+  private:	
 	Clutch &clutch;
 	FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &can;
 	Storage &storage;

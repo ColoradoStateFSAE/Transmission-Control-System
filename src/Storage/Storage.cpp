@@ -6,8 +6,46 @@ bool Storage::begin() {
 		return false;
 	}
 
+	if(!readPins()) {
+		return false;
+	}
+
 	verifyJson();
 	readJson();
+	return true;
+}
+
+bool Storage::readPins() {
+	File file = SD.open("/pins.json", FILE_READ);
+	if(!file) {
+		Serial.println("Storage: Could not open 'pins.json'");
+		return false;
+	}
+
+	DynamicJsonDocument doc(JSON_SIZE);
+	deserializeJson(doc, file);
+	file.close();
+
+	std::vector<const char*> keys = {"up", "down", "clutchLeft", "clutchRight", "IA", "IB", "servo", "neutral"};
+	for(auto i : keys) {
+		if(!doc.containsKey(i) || doc[i].isNull()) {
+			Serial.println("Storage: Key '" + String(i) + "' not found in 'pins.json'");
+			return false;
+		}
+	}
+
+	_up = doc["up"];
+	_down = doc["down"];
+	_clutchLeft = doc["clutchLeft"];
+	_clutchRight = doc["clutchRight"];
+	_IA = doc["IA"];
+	_IB = doc["IB"];
+	_servo = doc["servo"];
+	_neutral = doc["neutral"];
+
+	pinMode(_IA, OUTPUT);
+	pinMode(_IB, OUTPUT);
+
 	return true;
 }
 
@@ -93,8 +131,39 @@ void Storage::print() {
 }
 
 int Storage::rpm() { return _rpm; }
-void Storage::rpm(int value) { 
+void Storage::rpm(int value) {
 	_rpm = value;
+}
+
+int Storage::up() {
+	return _up;
+}
+
+int Storage::down() {
+	return _down;
+}
+
+int Storage::clutchLeft() {
+	return _clutchLeft;
+}
+
+int Storage::clutchRight() {
+	return _clutchRight;
+}
+
+int Storage::IA() {
+	return _IA;
+}
+int Storage::IB() {
+	return _IB;
+}
+
+int Storage::servo() {
+	return _servo;
+}
+
+int Storage::neutral() {
+	return _neutral;
 }
 
 int Storage::gear() { return _gear; }

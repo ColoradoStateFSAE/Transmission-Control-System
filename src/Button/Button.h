@@ -5,20 +5,17 @@
 
 class Button {
   public:
-	Button() = delete;
-	Button(int pin, int debounce=500);
-	void begin();
+	void begin(int pin, int debounce=500);
 	void update();
 	bool pressed();
 
   private:
-	unsigned int debounceDelay;
-
-	int buttonPin;
+	int _pin;
+	unsigned int _debounce;
+	
 	int buttonState = HIGH;
 	int lastButtonState = HIGH;
 	unsigned long lastDebounceTime = 0;
-
 	bool buttonPressed = false;
 };
 
