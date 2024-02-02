@@ -10,7 +10,7 @@
 
 class Transmission {
   public:
-  	enum {
+  	enum Direction {
 		UP,
 		DOWN
 	};
@@ -32,9 +32,8 @@ class Transmission {
 
 	Transmission() = delete;
 	Transmission(Clutch &clutchRef, FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &canRef, Storage &settingsRef);
-
-	void broadcastValues(unsigned long frequency=0);
-	void shift(int direction);
+	
+	void shift(Transmission::Direction direction);
 	void update();
 
   private:	
@@ -45,6 +44,7 @@ class Transmission {
 	unsigned long shiftStartTime = 0;
 	unsigned long lastBroadastTime = 0;
 
+	void changeGear(Transmission::Direction direction);
 	void disableCombustion();
 	void upRoutine();
 	void downRoutine();

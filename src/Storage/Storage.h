@@ -34,7 +34,7 @@ class Storage {
 	int servo();
 	int neutral();
 
-	// Saved values from
+	// Saved values from SD card
 	int gear();
 	void gear(int value);
 
@@ -67,6 +67,7 @@ class Storage {
 	std::string filePath;
 
 	int _rpm = 0;
+	int _transmissionRpm = 0;
 
 	int _up;
 	int _down;

@@ -3,39 +3,17 @@
 Transmission::Transmission(
 	Clutch &clutchRef,
 	FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &canRef,
-	Storage &settingsRef) :
-	fsm(IDLE),
-	clutch(clutchRef),
-	can(canRef),
-	storage(settingsRef) {
-		pinMode(13, OUTPUT);
-	}
-
-void Transmission::broadcastValues(unsigned long frequency) {
-	if (millis() - lastBroadastTime >= frequency) {
-		lastBroadastTime = millis();
-
-		CAN_message_t gear;
-		gear.id = 1620;
-		canutil::constructData(gear, storage.gear(), 0, 1);
-		can.write(gear);
-
-		CAN_message_t timing;
-		timing.id = 1621;
-		canutil::constructData(timing, storage.upDelay(), 0, 2);
-		canutil::constructData(timing, storage.downDelay(), 2, 2);
-		canutil::constructData(timing, storage.output(), 4, 2);
-		canutil::constructData(timing, storage.timeout(), 6, 2);
-		can.write(timing);
-	}
+	Storage &settingsRef
+) : 
+	fsm(IDLE), 
+	clutch(clutchRef), 
+	can(canRef), 
+	storage(settingsRef) 
+{
+	pinMode(13, OUTPUT);
 }
 
-void Transmission::shift(int direction) {
-	if(fsm.state() != IDLE && fsm.state() != DOWN_CLUTCH_OUT) {
-		Serial.println(String("\x1b[31m") + "Additional shift attempted" + String("\x1b[0m"));
-		return;
-	}
-
+void Transmission::changeGear(Transmission::Direction direction) {
 	int currentGear = storage.gear();
 
 	if(storage.rpm() == 0) {
@@ -49,8 +27,15 @@ void Transmission::shift(int direction) {
 	} else if(direction == DOWN && currentGear > 1) {
 		storage.gear(storage.gear() - 1);
 	}
+}
 
-	broadcastValues();
+void Transmission::shift(Transmission::Direction direction) {
+	if(fsm.state() != IDLE && fsm.state() != DOWN_CLUTCH_OUT) {
+		Serial.println(String("\x1b[31m") + "Additional shift attempted" + String("\x1b[0m"));
+		return;
+	}
+
+	changeGear(direction);
 	shiftStartTime = millis();
 
 	if(direction == UP) {

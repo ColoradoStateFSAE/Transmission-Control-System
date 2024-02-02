@@ -5,7 +5,7 @@
 #include <functional>
 
 class FiniteStateMachine {
-public:
+  public:
 	typedef int State;
 	
 	FiniteStateMachine() = delete;
@@ -25,7 +25,7 @@ public:
 	// Increment 'value' once every millisecond over 'time' milliseconds
 	bool incrementOverTime(int &value, int finish, unsigned long time);
 	
-private:
+  private:
 	State currentState;
 	unsigned long lastActionTime;
 	unsigned long lastStateChangeTime;

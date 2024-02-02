@@ -1,5 +1,7 @@
 #include "Storage.h"
 
+using namespace std;
+
 bool Storage::begin() {
 	if(!SD.begin(BUILTIN_SDCARD)) {
 		Serial.println("Storage: SD card initialization failure");
@@ -130,7 +132,10 @@ void Storage::print() {
 	Serial.println("");
 }
 
-int Storage::rpm() { return _rpm; }
+int Storage::rpm() {
+	return _rpm;
+}
+
 void Storage::rpm(int value) {
 	_rpm = value;
 }

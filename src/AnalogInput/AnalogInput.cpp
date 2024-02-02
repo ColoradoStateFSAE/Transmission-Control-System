@@ -6,8 +6,7 @@ AnalogInput::AnalogInput(uint16_t samples) : _samples(samples) {
 
 void AnalogInput::begin(int pin) {
 	_pin = pin;
-
-	analogReadResolution(12);
+	
 	for (int i = 0; i < _samples; i++) {
 		runningAverage.add(analogRead(_pin));
 	}
