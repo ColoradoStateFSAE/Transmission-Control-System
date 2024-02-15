@@ -66,12 +66,13 @@ void Console::printInfo(float input, Storage &storage) {
 		Serial.println("ANALOG INPUT: " + String(input) + " %");
 		Serial.println();
 		Serial.println("UP DELAY: " + String(storage.upDelay()));
-		Serial.println("DOWN DELAY: " + String(storage.upDelay()));
-		Serial.println("OUTPUT: " + String(storage.upDelay()));
+		Serial.println("DOWN DELAY: " + String(storage.downDelay()));
+		Serial.println("OUTPUT: " + String(storage.output()));
 		Serial.println();
 		Serial.println("START: " + String(storage.start()));
 		Serial.println("END: " + String(storage.end()));
 		Serial.println("FRICTION: " + String(storage.friction()));
+		Serial.println("AUTO LAUNCH: " + String(storage.autoLaunch()));
 
 		lastPrintTime = millis();
 	}

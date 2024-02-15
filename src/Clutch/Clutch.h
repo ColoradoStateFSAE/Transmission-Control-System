@@ -27,8 +27,8 @@ class Clutch {
 	Clutch(FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &canRef, Storage &storageRef);
 	void begin(int pin);
 	void writeMicroseconds(int value);
-	void broadcastValues(unsigned long frequency);
 	int position();
+	int percentage();
 	void update();
 
   private:

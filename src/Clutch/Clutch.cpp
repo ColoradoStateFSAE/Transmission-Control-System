@@ -1,11 +1,7 @@
 #include "Clutch.h"
 
-Clutch::Clutch(
-	FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &canRef,
-	Storage &storageRef) :
-	fsm(ANALOG_INPUT),
-	can(canRef),
-	storage(storageRef) {
+Clutch::Clutch(FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &canRef, Storage &storageRef) :
+	fsm(ANALOG_INPUT), can(canRef), storage(storageRef) {
 
 	}
 
@@ -20,54 +16,33 @@ void Clutch::writeMicroseconds(int value) {
 	servo.writeMicroseconds(value);
 }
 
-void Clutch::broadcastValues(unsigned long frequency) {
-	if (millis() - lastBroadcastTime >= frequency) {
-		lastBroadcastTime = millis();
-
-		CAN_message_t msg;
-		msg.id = 1622;
-		canutil::constructData(msg, storage.start(), 0, 2);
-		canutil::constructData(msg, storage.end(), 2, 2);
-		canutil::constructData(msg, storage.friction(), 4, 2);
-		canutil::constructData(msg, servoPosition, 6, 2);
-		can.write(msg);
-
-		CAN_message_t autoLaunchMsg;
-		autoLaunchMsg.id = 1625;
-		autoLaunchMsg.buf[0] = storage.autoLaunch();
-		can.write(autoLaunchMsg);
-	}
-}
-
 int Clutch::position() {
 	return servoPosition;
 }
 
+int Clutch::percentage() {
+	float normalizedValue = (float)(servoPosition - storage.start()) / (storage.end() - storage.start());
+	normalizedValue = round(normalizedValue * 100);
+	return normalizedValue;
+}
+
 void Clutch::update() {
+	if(!storage.autoLaunch()) fsm.state(State::ANALOG_INPUT);
+	if(storage.autoLaunch() && 90 <= input) fsm.state(State::HOLD_END);
+
 	switch(fsm.state()) {
 		case ANALOG_INPUT: {
 			int servoWrite = map(input, 0.0f, 100.0f, storage.start(), storage.end());
 			writeMicroseconds(servoWrite);
-
-			if(storage.autoLaunch() && input >= 90) {
-				fsm.state(HOLD_END);
-				return;
-			}
 			break;
 		}
 
 		case HOLD_END: {
-			fsm.runOnce([&](){
-				Serial.println("\nHOLD END");
-			});
-
 			autoLaunchPosition = storage.end();
 			writeMicroseconds(autoLaunchPosition);
 
 			if(input <= 50) {
 				fsm.state(GOTO_FRICTION);
-			} else if(!storage.autoLaunch()) {
-				fsm.state(ANALOG_INPUT);
 			}
 			break;
 		}
@@ -75,7 +50,7 @@ void Clutch::update() {
 		case GOTO_FRICTION: {
 			fsm.runOnce([&](){
 				autoLanchStartTime = millis();
-				Serial.println("GOTO FRICTION: " + String(millis() - autoLanchStartTime));
+				Serial.println("\nGOTO FRICTION: " + String(millis() - autoLanchStartTime));
 			});
 
 			if(!fsm.incrementOverTime(autoLaunchPosition, storage.friction(), 200)) {

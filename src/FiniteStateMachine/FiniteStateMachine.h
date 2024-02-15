@@ -31,6 +31,7 @@ class FiniteStateMachine {
 	unsigned long lastStateChangeTime;
 	bool runAction = true;
 
+	bool initializeIncrement = true;
 	double incrementValue = 0;
 	double amount;
 	bool increasing;

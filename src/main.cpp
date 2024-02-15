@@ -66,12 +66,18 @@ void loop() {
 
 	clutch.input = analogInput.travel();
 
+	if(clutch.fsm.state() != Clutch::State::ANALOG_INPUT) {
+		console.pause();
+	}
+
 	// Update finite-state machines
 	transmission.update();
 	clutch.update();
 	
 	// Send data over CAN
-	canData.broadcast(100);
+	canData.broadcast(200);
+	canData.broadcastClutchPosition(clutch.percentage(), 20);
+	canData.broadcastInput(analogInput.travel(), 20);
 	
 	console.printInfo(analogInput.travel(), storage);
 	console.update(micros()-start);
