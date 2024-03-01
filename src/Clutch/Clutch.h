@@ -24,7 +24,8 @@ class Clutch {
 	FiniteStateMachine fsm;
 	float input = 0;
 
-	Clutch(FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &canRef, Storage &storageRef);
+	Clutch() = delete;
+	Clutch(Storage &storageRef);
 	void begin(int pin);
 	void writeMicroseconds(int value);
 	int position();
@@ -32,7 +33,6 @@ class Clutch {
 	void update();
 
   private:
-	FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &can;
 	Storage &storage;
 	Servo servo;
 

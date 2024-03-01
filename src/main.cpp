@@ -4,26 +4,20 @@
 #include "Clutch/Clutch.h"
 #include "Transmission/Transmission.h"
 #include "Button/Button.h"
-#include "CanData/CanData.h"
+#include "Can/Can.h"
 #include "Console/Console.h"
 
-FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> can;
 Console console;
 Storage storage("settings.json");
 Button up;
 Button down;
 AnalogInput analogInput(512);
-Clutch clutch(can, storage);
-CanData canData(clutch, can, storage);
+Clutch clutch(storage);
+Can can(clutch, storage);
 Transmission transmission(clutch, can, storage);
 
 void setup() {
 	can.begin();
-	can.setBaudRate(500000);
-	can.enableFIFO(true);
-	can.setFIFOFilter(REJECT_ALL);
-	can.setFIFOFilter(0, 1520, STD);
-	can.setFIFOFilterRange(2, 1620, 1640, STD);
 
 	console.begin(9600);
 
@@ -47,7 +41,7 @@ void loop() {
 	int start = micros();
 
 	// Read CAN
-	canData.update();
+	can.update();
 
 	// Handle input
 	up.update();
@@ -57,11 +51,11 @@ void loop() {
 	if(up.pressed()) {
 		console.pause();
 		transmission.shift(Transmission::Direction::UP);
-		canData.broadcastGear();
+		can.broadcastGear();
 	} else if(down.pressed()) {
 		console.pause();
 		transmission.shift(Transmission::Direction::DOWN);
-		canData.broadcastGear();
+		can.broadcastGear();
 	}
 
 	clutch.input = analogInput.travel();
@@ -75,9 +69,9 @@ void loop() {
 	clutch.update();
 	
 	// Send data over CAN
-	canData.broadcast(200);
-	canData.broadcastClutchPosition(clutch.percentage(), 20);
-	canData.broadcastInput(analogInput.travel(), 20);
+	can.broadcast(200);
+	can.broadcastClutchPosition(clutch.percentage(), 20);
+	can.broadcastInput(analogInput.travel(), 20);
 	
 	console.printInfo(analogInput.travel(), storage);
 	console.update(micros()-start);

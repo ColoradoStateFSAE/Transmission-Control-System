@@ -1,13 +1,21 @@
-#include "CanData.h"
+#include "Can.h"
 
-CanData::CanData(Clutch &clutchRef, FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &canRef, Storage &storageRef) :
-	clutch(clutchRef), can(canRef), storage(storageRef) {
+Can::Can(Clutch &clutch, Storage &storage) : clutch(clutch), storage(storage) {
 
 }
 
-void CanData::update() {
+void Can::begin() {
+	interface.begin();
+	interface.setBaudRate(500000);
+	interface.enableFIFO(true);
+	interface.setFIFOFilter(REJECT_ALL);
+	interface.setFIFOFilter(0, 1520, STD);
+	interface.setFIFOFilterRange(2, 1620, 1640, STD);
+}
+
+void Can::update() {
 	CAN_message_t msg;
-	if(can.readFIFO(msg)) {
+	if(interface.readFIFO(msg)) {
 		switch(msg.id) {
 			case MS3X_MEGASQUIRT_GP0_FRAME_ID: {
 				lastCanUpdate = millis();
@@ -42,8 +50,12 @@ void CanData::update() {
 			case TCS_SET_CLUTCH_FRAME_ID: {
 				tcs_set_clutch_t message;
 				tcs_set_clutch_unpack(&message, msg.buf, sizeof(message));
-				clutch.writeMicroseconds(tcs_set_clutch_set_position_decode(message.set_position));
+
 				clutch.fsm.state(tcs_set_clutch_set_state_decode(message.set_state));
+				clutch.writeMicroseconds(tcs_clutch_position_decode(message.set_position));
+
+				Serial.println(clutch.position());
+				Serial.println(clutch.fsm.state());
 				break;
 			}
 		}
@@ -54,17 +66,17 @@ void CanData::update() {
 	}
 }
 
-void CanData::broadcastGear() {
+void Can::broadcastGear() {
 	CAN_message_t msg;
 	msg.id = TCS_GEAR_FRAME_ID;
 	tcs_gear_t message;
 
 	message.gear = storage.gear();
 	tcs_gear_pack(msg.buf, &message, sizeof(msg.buf));
-	can.write(msg);
+	interface.write(msg);
 }
 
-void CanData::broadcastClutchPosition(int value, unsigned long frequency) {
+void Can::broadcastClutchPosition(int value, unsigned long frequency) {
 	static int lastBroadastTime = 0;
 	if(millis() - lastBroadastTime > frequency) {
 		lastBroadastTime = millis();
@@ -77,11 +89,11 @@ void CanData::broadcastClutchPosition(int value, unsigned long frequency) {
 		message.position_percentage = tcs_clutch_position_percentage_encode(clutch.percentage());
 
 		tcs_clutch_pack(msg.buf, &message, sizeof(msg.buf));
-		can.write(msg);
+		interface.write(msg);
 	}
 }
 
-void CanData::broadcastInput(int value, unsigned long frequency) {
+void Can::broadcastInput(int value, unsigned long frequency) {
 	static int lastBroadastTime = 0;
 	if(millis() - lastBroadastTime > frequency) {
 		lastBroadastTime = millis();
@@ -94,11 +106,11 @@ void CanData::broadcastInput(int value, unsigned long frequency) {
 		message.input_right_raw = tcs_analog_input_input_right_raw_encode(analogRead(storage.clutchRight()));
 
 		tcs_analog_input_pack(msg.buf, &message, sizeof(msg.buf));
-		can.write(msg);
+		interface.write(msg);
 	}
 }
 
-void CanData::broadcastShiftSettings() {
+void Can::broadcastShiftSettings() {
 	CAN_message_t msg;
 	msg.id = TCS_SHIFT_SETTINGS_FRAME_ID;
 
@@ -109,10 +121,10 @@ void CanData::broadcastShiftSettings() {
 	message.timeout = storage.timeout();
 
 	tcs_shift_settings_pack(msg.buf, &message, sizeof(msg.buf));
-	can.write(msg);
+	interface.write(msg);
 }
 
-void CanData::broadcastClutchSettings() {
+void Can::broadcastClutchSettings() {
 	CAN_message_t msg;
 	msg.id = TCS_CLUTCH_SETTINGS_FRAME_ID;
 
@@ -123,10 +135,10 @@ void CanData::broadcastClutchSettings() {
 	message.auto_launch = tcs_clutch_settings_auto_launch_encode(storage.autoLaunch());
 
 	tcs_clutch_settings_pack(msg.buf, &message, sizeof(msg.buf));
-	can.write(msg);
+	interface.write(msg);
 }
 
-void CanData::broadcast(unsigned long frequency) {
+void Can::broadcast(unsigned long frequency) {
 	static int lastBroadastTime = millis();
 	if(millis() - lastBroadastTime > frequency) {
 		lastBroadastTime = millis();
@@ -134,9 +146,5 @@ void CanData::broadcast(unsigned long frequency) {
 		broadcastGear();
 		broadcastShiftSettings();
 		broadcastClutchSettings();
-
-		CAN_message_t msg;
-		msg.id = 1520;
-		can.write(msg);
 	}
 }

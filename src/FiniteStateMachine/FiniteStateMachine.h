@@ -13,13 +13,13 @@ class FiniteStateMachine {
 	State state() const;
 	void state(State newState);
 
-	// Runs the action once. Reset by changing state.
+	// Run the action once. Reset by changing states.
 	void runOnce(std::function<void()> action);
 
-	// Call the action after waiting the duration, then change states
+	// Run the action after waiting the duration, then change states
 	void waitAndSetState(unsigned long duration, std::function<void()> action, State newState);
 
-	// Call the action every 'time' milliseconds
+	// Run the action every 'time' milliseconds
 	void timedLoop(unsigned long time, std::function<void()> action);
 
 	// Increment 'value' once every millisecond over 'time' milliseconds

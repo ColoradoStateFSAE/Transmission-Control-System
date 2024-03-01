@@ -1,9 +1,8 @@
 #include "Clutch.h"
 
-Clutch::Clutch(FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &canRef, Storage &storageRef) :
-	fsm(ANALOG_INPUT), can(canRef), storage(storageRef) {
+Clutch::Clutch(Storage &storageRef) : fsm(ANALOG_INPUT), storage(storageRef) {
 
-	}
+}
 
 void Clutch::begin(int pin) {
 	servo.attach(pin);
@@ -27,17 +26,21 @@ int Clutch::percentage() {
 }
 
 void Clutch::update() {
-	if(!storage.autoLaunch()) fsm.state(State::ANALOG_INPUT);
-	if(storage.autoLaunch() && 90 <= input) fsm.state(State::HOLD_END);
-
 	switch(fsm.state()) {
 		case ANALOG_INPUT: {
-			int servoWrite = map(input, 0.0f, 100.0f, storage.start(), storage.end());
-			writeMicroseconds(servoWrite);
+			if(storage.autoLaunch() && 90 <= input) {
+				fsm.state(State::HOLD_END);
+			} else {
+				int servoWrite = map(input, 0.0f, 100.0f, storage.start(), storage.end());
+				writeMicroseconds(servoWrite);
+			}
+			
 			break;
 		}
 
 		case HOLD_END: {
+			if(!storage.autoLaunch()) { fsm.state(State::ANALOG_INPUT); return; }
+
 			autoLaunchPosition = storage.end();
 			writeMicroseconds(autoLaunchPosition);
 
@@ -57,7 +60,6 @@ void Clutch::update() {
 				fsm.state(HOLD_FRICTION);
 			}
 			writeMicroseconds(autoLaunchPosition);
-
 			break;
 		}
 
@@ -82,7 +84,6 @@ void Clutch::update() {
 				fsm.state(ANALOG_INPUT);
 			}
 			writeMicroseconds(autoLaunchPosition);
-
 			break;
 		}
 	}

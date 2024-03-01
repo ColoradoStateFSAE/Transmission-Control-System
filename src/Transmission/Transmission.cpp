@@ -1,7 +1,6 @@
 #include "Transmission.h"
 
-Transmission::Transmission(Clutch &clutchRef, FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &canRef, Storage &settingsRef) : 
-	fsm(IDLE), clutch(clutchRef), can(canRef), storage(settingsRef) {
+Transmission::Transmission(Clutch &clutchRef, Can &canRef, Storage &settingsRef) : clutch(clutchRef), can(canRef), storage(settingsRef) {
 	pinMode(13, OUTPUT);
 }
 
@@ -42,9 +41,9 @@ void Transmission::shift(Transmission::Direction direction) {
 void Transmission::disableCombustion() {
 	CAN_message_t msg;
 	msg.id = 522;
-	msg.buf[0] = 0b00000000; can.write(msg);
-	msg.buf[0] = 0b00000001; can.write(msg);
-	msg.buf[0] = 0b00000000; can.write(msg);
+	msg.buf[0] = 0b00000000; can.interface.write(msg);
+	msg.buf[0] = 0b00000001; can.interface.write(msg);
+	msg.buf[0] = 0b00000000; can.interface.write(msg);
 }
 
 void Transmission::upRoutine() {

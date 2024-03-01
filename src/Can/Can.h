@@ -1,5 +1,5 @@
-#ifndef CAN_DATA_H
-#define CAN_DATA_H
+#ifndef CAN_H
+#define CAN_H
 
 #include <FlexCAN_T4.h>
 #include "Storage/Storage.h"
@@ -9,9 +9,12 @@
 #include "dbc/ms3x.h"
 #include "dbc/tcs.h"
 
-class CanData {
+class Can {
   public:
-	CanData(Clutch &clutchRef, FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &canRef, Storage &storageRef);
+	FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_16> interface;
+
+	Can(Clutch &clutch, Storage &storage);
+	void begin();
 	void update();
 	void broadcastGear();
 	void broadcastClutchPosition(int value, unsigned long frequency);
@@ -22,7 +25,6 @@ class CanData {
 
   private:
 	Clutch &clutch;
-	FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &can;
 	Storage &storage;
 	unsigned long lastCanUpdate = 0;
 };

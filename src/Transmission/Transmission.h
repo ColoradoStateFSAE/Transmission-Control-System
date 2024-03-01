@@ -6,7 +6,7 @@
 #include "Clutch/Clutch.h"
 #include "Storage/Storage.h"
 #include "FiniteStateMachine/FiniteStateMachine.h"
-#include "canutil/canutil.h"
+#include "Can/Can.h"
 
 class Transmission {
   public:
@@ -28,17 +28,16 @@ class Transmission {
 		DOWN_CLUTCH_OUT,
 	};
 
-	FiniteStateMachine fsm;
+	FiniteStateMachine fsm = FiniteStateMachine(IDLE);
 
 	Transmission() = delete;
-	Transmission(Clutch &clutchRef, FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &canRef, Storage &settingsRef);
-	
+	Transmission(Clutch &clutchRef, Can &canRef, Storage &settingsRef);
 	void shift(Transmission::Direction direction);
 	void update();
 
   private:	
 	Clutch &clutch;
-	FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &can;
+	Can &can;
 	Storage &storage;
 
 	unsigned long shiftStartTime = 0;
