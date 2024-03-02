@@ -28,7 +28,18 @@ bool Storage::readPins() {
 	deserializeJson(doc, file);
 	file.close();
 
-	std::vector<const char*> keys = {"up", "down", "clutchLeft", "clutchRight", "IA", "IB", "servo", "neutral"};
+	std::vector<const char*> keys = {
+		"up",
+		"down",
+		"clutchLeft",
+		"clutchRight",
+		"IA",
+		"IB",
+		"ecuUp",
+		"ecuDown",
+		"servo"
+	};
+
 	for(auto i : keys) {
 		if(!doc.containsKey(i) || doc[i].isNull()) {
 			Serial.println("Storage: Key '" + String(i) + "' not found in 'pins.json'");
@@ -42,8 +53,9 @@ bool Storage::readPins() {
 	_clutchRight = doc["clutchRight"];
 	_IA = doc["IA"];
 	_IB = doc["IB"];
+	_ecuUp = doc["ecuUp"];
+	_ecuDown = doc["ecuDown"];
 	_servo = doc["servo"];
-	_neutral = doc["neutral"];
 
 	pinMode(_IA, OUTPUT);
 	pinMode(_IB, OUTPUT);
@@ -118,28 +130,6 @@ void Storage::readJson() {
 	_autoLaunch = doc["autoLaunch"];
 }
 
-void Storage::print() {
-	Serial.println("SHIFT");
-	Serial.println("> UP DELAY: " + String(_upDelay));
-	Serial.println("> DOWN DELAY: " + String(_downDelay));
-	Serial.println("> OUTPUT: " + String(_output));
-	Serial.println("> TIMEOUT: " + String(_timeout));
-	Serial.println("CLUTCH");
-	Serial.println("> CLUTCH START: " + String(_start));
-	Serial.println("> CLUTCH END: " + String(_end));
-	Serial.println("> FRICTION POINT: " + String(_friction));
-	Serial.println("> AUTO LAUNCH: " + String(_autoLaunch));
-	Serial.println("");
-}
-
-int Storage::rpm() {
-	return _rpm;
-}
-
-void Storage::rpm(int value) {
-	_rpm = value;
-}
-
 int Storage::up() {
 	return _up;
 }
@@ -163,12 +153,16 @@ int Storage::IB() {
 	return _IB;
 }
 
-int Storage::servo() {
-	return _servo;
+int Storage::ecuUp() {
+	return _ecuUp;
 }
 
-int Storage::neutral() {
-	return _neutral;
+int Storage::ecuDown() {
+	return _ecuDown;
+}
+
+int Storage::servo() {
+	return _servo;
 }
 
 int Storage::gear() { return _gear; }

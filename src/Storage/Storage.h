@@ -18,11 +18,6 @@ class Storage {
 	void verifyJson();
 	void writeJson();
 	void readJson();
-	void print();
-
-	// Data from CAN
-	int rpm();
-	void rpm(int value);
 
 	// Pin definitions
 	int up();
@@ -31,8 +26,9 @@ class Storage {
 	int clutchRight();
 	int IA();
 	int IB();
+	int ecuUp();
+	int ecuDown();
 	int servo();
-	int neutral();
 
 	// Saved values from SD card
 	int gear();
@@ -66,16 +62,14 @@ class Storage {
 	const size_t JSON_SIZE = 256;
 	std::string filePath;
 
-	int _rpm = 0;
-	int _transmissionRpm = 0;
-
 	int _up;
 	int _down;
 	int _clutchLeft;
 	int _clutchRight;
 	int _IA;
 	int _IB;
-	int _neutral;
+	int _ecuUp;
+	int _ecuDown;
 	int _servo;
 	
 	int _gear = 0;

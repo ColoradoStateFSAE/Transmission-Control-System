@@ -51,6 +51,8 @@ void Clutch::update() {
 		}
 
 		case GOTO_FRICTION: {
+			if(90 <= input) { fsm.state(State::ANALOG_INPUT); return; }
+
 			fsm.runOnce([&](){
 				autoLanchStartTime = millis();
 				Serial.println("\nGOTO FRICTION: " + String(millis() - autoLanchStartTime));
@@ -64,6 +66,8 @@ void Clutch::update() {
 		}
 
 		case HOLD_FRICTION: {
+			if(90 <= input) { fsm.state(State::ANALOG_INPUT); return; }
+
 			fsm.runOnce([&](){
 				Serial.println("HOLD FRICTION: " + String(millis() - autoLanchStartTime));
 			});
@@ -75,6 +79,8 @@ void Clutch::update() {
 		}
 
 		case GOTO_START: {
+			if(90 <= input) { fsm.state(State::ANALOG_INPUT); return; }
+			
 			fsm.runOnce([&](){
 				Serial.println("GOTO START: " + String(millis() - autoLanchStartTime));
 			});

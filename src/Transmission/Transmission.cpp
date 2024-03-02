@@ -7,7 +7,7 @@ Transmission::Transmission(Clutch &clutchRef, Can &canRef, Storage &settingsRef)
 void Transmission::changeGear(Transmission::Direction direction) {
 	int currentGear = storage.gear();
 
-	if(storage.rpm() == 0) {
+	if(can.rpm() == 0) {
 		storage.gear(0);
 	} else if(direction == UP && currentGear == 0) {
 		storage.gear(2);
@@ -64,7 +64,7 @@ void Transmission::upRoutine() {
 		case UP_ENABLE_SOLENOID:
 			fsm.runOnce([&](){
 				Serial.println("SOLENOID ENABLE: " + String(millis() - shiftStartTime));
-				if(storage.rpm() >= 500) digitalWrite(pin, HIGH);
+				if(can.rpm() >= 500) digitalWrite(pin, HIGH);
 				digitalWrite(13, HIGH);
 			});
 
@@ -111,7 +111,7 @@ void Transmission::downRoutine() {
 		case DOWN_ENABLE_SOLENOID: {
 			fsm.runOnce([&](){
 				Serial.println("SOLENOID ENABLE: " + String(millis() - shiftStartTime));
-				if(storage.rpm() >= 500) digitalWrite(pin, HIGH);
+				if(can.rpm() >= 500) digitalWrite(pin, HIGH);
 				digitalWrite(13, HIGH);
 			});
 

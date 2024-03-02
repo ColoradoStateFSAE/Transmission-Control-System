@@ -21,7 +21,7 @@ void Can::update() {
 				lastCanUpdate = millis();
 				ms3x_megasquirt_gp0_t message;
 				ms3x_megasquirt_gp0_unpack(&message, msg.buf, sizeof(message));
-				storage.rpm(ms3x_megasquirt_gp0_rpm_decode(message.rpm));
+				_rpm = ms3x_megasquirt_gp0_rpm_decode(message.rpm);
 				break;
 			}
 
@@ -53,16 +53,13 @@ void Can::update() {
 
 				clutch.fsm.state(tcs_set_clutch_set_state_decode(message.set_state));
 				clutch.writeMicroseconds(tcs_clutch_position_decode(message.set_position));
-
-				Serial.println(clutch.position());
-				Serial.println(clutch.fsm.state());
 				break;
 			}
 		}
 	}
 
 	if(millis() - lastCanUpdate >= 100) {
-		storage.rpm(0);
+		_rpm = 0;
 	}
 }
 
@@ -147,4 +144,12 @@ void Can::broadcast(unsigned long frequency) {
 		broadcastShiftSettings();
 		broadcastClutchSettings();
 	}
+}
+
+int Can::rpm() {
+	return _rpm;
+}
+
+void Can::rpm(int value) {
+	_rpm = value;
 }

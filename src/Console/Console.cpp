@@ -56,12 +56,12 @@ void Console::printInfo(float input, Storage &storage) {
 
 	if(millis() - lastPrintTime > delayTime) {
 		clear();
-		Serial.println("CPU TEMP: " + String(tempColor) + String(tempmonGetTemp()) + String(" °C") + RESET);
-		Serial.println("LOOP TIME");
-		Serial.print("AVERAGE: " + String(runningAverage.getFastAverage()) + " μs    ");
-		Serial.print("HIGH: " + String(runningAverage.getMax()) + " μs    ");
-		Serial.print("LOW: " + String(runningAverage.getMin()) + " μs    ");
-		Serial.print("STD DEV: " + String(runningAverage.getStandardDeviation()) + " μs");
+		Serial.println("CPU TEMP: " + String(tempColor) + String(round(tempmonGetTemp())) + String(" °C") + RESET);
+		Serial.println("LOOP TIME:");
+		Serial.print("AVERAGE: " + String(round(runningAverage.getFastAverage())) + " μs    ");
+		Serial.print("HIGH: " + String(round(runningAverage.getMax())) + " μs    ");
+		Serial.print("LOW: " + String(round(runningAverage.getMin())) + " μs    ");
+		Serial.print("STD DEV: " + String(round(runningAverage.getStandardDeviation())) + " μs");
 		Serial.println();
 		Serial.println("ANALOG INPUT: " + String(input) + " %");
 		Serial.println();
@@ -73,7 +73,8 @@ void Console::printInfo(float input, Storage &storage) {
 		Serial.println("END: " + String(storage.end()));
 		Serial.println("FRICTION: " + String(storage.friction()));
 		Serial.println("AUTO LAUNCH: " + String(storage.autoLaunch()));
-
+		
+		runningAverage.clear();
 		lastPrintTime = millis();
 	}
 }

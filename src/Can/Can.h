@@ -23,10 +23,15 @@ class Can {
 	void broadcastClutchSettings();
 	void broadcast(unsigned long frequency);
 
+	int rpm();
+	void rpm(int value);
+
   private:
 	Clutch &clutch;
 	Storage &storage;
 	unsigned long lastCanUpdate = 0;
+
+	int _rpm = 0;
 };
 
 #endif
