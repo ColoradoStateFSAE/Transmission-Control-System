@@ -9,7 +9,7 @@
 #include "FiniteStateMachine/FiniteStateMachine.h"
 #include "canutil/canutil.h"
 
-class Clutch {
+class Clutch : public FiniteStateMachine {
   public:
 	enum State {
 		IDLE,
@@ -20,8 +20,7 @@ class Clutch {
 		HOLD_FRICTION,
 		GOTO_START,
 	};
-
-	FiniteStateMachine fsm;
+	
 	float input = 0;
 
 	Clutch() = delete;

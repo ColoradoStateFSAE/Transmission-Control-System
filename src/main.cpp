@@ -60,7 +60,7 @@ void loop() {
 
 	clutch.input = analogInput.travel();
 
-	if(clutch.fsm.state() != Clutch::State::ANALOG_INPUT) {
+	if(clutch.state() != Clutch::State::ANALOG_INPUT) {
 		console.pause();
 	}
 

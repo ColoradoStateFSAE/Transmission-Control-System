@@ -51,7 +51,7 @@ void Can::update() {
 				tcs_set_clutch_t message;
 				tcs_set_clutch_unpack(&message, msg.buf, sizeof(message));
 
-				clutch.fsm.state(tcs_set_clutch_set_state_decode(message.set_state));
+				clutch.state(tcs_set_clutch_set_state_decode(message.set_state));
 				clutch.writeMicroseconds(tcs_clutch_position_decode(message.set_position));
 				break;
 			}

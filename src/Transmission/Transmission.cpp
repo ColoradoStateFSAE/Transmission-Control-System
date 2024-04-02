@@ -1,6 +1,6 @@
 #include "Transmission.h"
 
-Transmission::Transmission(Clutch &clutchRef, Can &canRef, Storage &settingsRef) : clutch(clutchRef), can(canRef), storage(settingsRef) {
+Transmission::Transmission(Clutch &clutchRef, Can &canRef, Storage &settingsRef) : FiniteStateMachine(IDLE), clutch(clutchRef), can(canRef), storage(settingsRef) {
 	pinMode(13, OUTPUT);
 }
 
@@ -21,7 +21,7 @@ void Transmission::changeGear(Transmission::Direction direction) {
 }
 
 void Transmission::shift(Transmission::Direction direction) {
-	if(fsm.state() != IDLE && fsm.state() != DOWN_CLUTCH_OUT) {
+	if(state() != IDLE && state() != DOWN_CLUTCH_OUT) {
 		Serial.println(String("\x1b[31m") + "Additional shift attempted" + String("\x1b[0m"));
 		return;
 	}
@@ -31,10 +31,10 @@ void Transmission::shift(Transmission::Direction direction) {
 
 	if(direction == UP) {
 		Serial.println("\nUP");
-		fsm.state(UP_SPARK_CUT);
+		state(UP_SPARK_CUT);
 	} else if(direction == DOWN) {
 		Serial.println("\nDOWN");
-		fsm.state(DOWN_CLUTCH_IN);
+		state(DOWN_CLUTCH_IN);
 	}
 }
 
@@ -49,38 +49,38 @@ void Transmission::disableCombustion() {
 void Transmission::upRoutine() {
 	int pin = storage.IA();
 
-	switch(fsm.state()) {
+	switch(state()) {
 		case UP_SPARK_CUT:
-			fsm.runOnce([&](){
+			runOnce([&](){
 				Serial.println("COMBUSTION DISABLE: " + String(millis() - shiftStartTime));
 				disableCombustion();
 			});
 
-			fsm.waitAndSetState(storage.upDelay(), [](){
+			waitAndSetState(storage.upDelay(), [](){
 				// Wait for the up delay
 			}, UP_ENABLE_SOLENOID);
 			break;
 
 		case UP_ENABLE_SOLENOID:
-			fsm.runOnce([&](){
+			runOnce([&](){
 				Serial.println("SOLENOID ENABLE: " + String(millis() - shiftStartTime));
 				if(can.rpm() >= 500) digitalWrite(pin, HIGH);
 				digitalWrite(13, HIGH);
 			});
 
-			fsm.waitAndSetState(storage.output(), [](){
+			waitAndSetState(storage.output(), [](){
 				// Wait for the output duration
 			}, UP_DISABLE_SOLENOID);
 			break;
 
 		case UP_DISABLE_SOLENOID:
-			fsm.runOnce([&](){
+			runOnce([&](){
 				Serial.println("SOLENOID DISABLE: " + String(millis() - shiftStartTime));
 				digitalWrite(pin, LOW);
 				digitalWrite(13, LOW);
 			});
 
-			fsm.state(IDLE);
+			state(IDLE);
 			break;
 	}
 }
@@ -88,11 +88,11 @@ void Transmission::upRoutine() {
 void Transmission::downRoutine() {
 	int pin = storage.IB();
 
-	switch(fsm.state()) {
+	switch(state()) {
 		case DOWN_CLUTCH_IN: {
-			fsm.runOnce([&](){
+			runOnce([&](){
 				Serial.println("CLUTCH IN " + String(millis() - shiftStartTime));
-				clutch.fsm.state(Clutch::State::IDLE);
+				clutch.state(Clutch::State::IDLE);
 				clutch.writeMicroseconds(storage.end());
 			});
 
@@ -102,27 +102,27 @@ void Transmission::downRoutine() {
 				delay = storage.upDelay();
 			}
 
-			fsm.waitAndSetState(delay, [](){
+			waitAndSetState(delay, [](){
 				// Wait for the delay
 			}, DOWN_ENABLE_SOLENOID);
 			break;
 		}
 
 		case DOWN_ENABLE_SOLENOID: {
-			fsm.runOnce([&](){
+			runOnce([&](){
 				Serial.println("SOLENOID ENABLE: " + String(millis() - shiftStartTime));
 				if(can.rpm() >= 500) digitalWrite(pin, HIGH);
 				digitalWrite(13, HIGH);
 			});
 
-			fsm.waitAndSetState(storage.output(), [](){
+			waitAndSetState(storage.output(), [](){
 				// Wait output duration
 			}, DOWN_DISABLE_SOLENOID);
 			break;
 		}
 
 		case DOWN_DISABLE_SOLENOID: {
-			fsm.runOnce([&](){
+			runOnce([&](){
 				Serial.println("SOLENOID DISABLE: " + String(millis() - shiftStartTime));
 				digitalWrite(pin, LOW);
 				digitalWrite(13, LOW);
@@ -134,23 +134,23 @@ void Transmission::downRoutine() {
 			if(clutch.input >= 90) {
 				delay = 0;
 				nextState = IDLE;
-				clutch.fsm.state(Clutch::State::ANALOG_INPUT);
+				clutch.state(Clutch::State::ANALOG_INPUT);
 			}
 
-			fsm.waitAndSetState(delay, [](){
+			waitAndSetState(delay, [](){
 
 			}, nextState);
 			break;
 		}
 
 		case DOWN_CLUTCH_OUT: {
-			fsm.runOnce([&](){
+			runOnce([&](){
 				Serial.println("CLUTCH OUT " + String(millis() - shiftStartTime));
 				clutch.writeMicroseconds(storage.start());
-				clutch.fsm.state(Clutch::State::ANALOG_INPUT);
+				clutch.state(Clutch::State::ANALOG_INPUT);
 			});
 
-			fsm.state(IDLE);
+			state(IDLE);
 			break;
 		}
 	}

@@ -8,7 +8,7 @@
 #include "FiniteStateMachine/FiniteStateMachine.h"
 #include "Can/Can.h"
 
-class Transmission {
+class Transmission : public FiniteStateMachine{
   public:
   	enum Direction {
 		UP,
@@ -27,8 +27,6 @@ class Transmission {
 		DOWN_DISABLE_SOLENOID,
 		DOWN_CLUTCH_OUT,
 	};
-
-	FiniteStateMachine fsm = FiniteStateMachine(IDLE);
 
 	Transmission() = delete;
 	Transmission(Clutch &clutchRef, Can &canRef, Storage &settingsRef);
