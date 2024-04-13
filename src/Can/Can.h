@@ -6,7 +6,7 @@
 #include "Clutch/Clutch.h"
 #include "AnalogInput/AnalogInput.h"
 #include "canutil/canutil.h"
-#include "dbc/ms3x.h"
+#include "dbc/r3.h"
 #include "dbc/tcs.h"
 
 class Can {
@@ -16,15 +16,13 @@ class Can {
 	Can(Clutch &clutch, Storage &storage);
 	void begin();
 	void update();
-	void broadcastGear();
 	void broadcastClutchPosition(int value, unsigned long frequency);
 	void broadcastInput(int input, unsigned long frequency);
 	void broadcastShiftSettings();
 	void broadcastClutchSettings();
 	void broadcast(unsigned long frequency);
 
-	int rpm();
-	void rpm(int value);
+	int rpm = 0;
 
   private:
 	Clutch &clutch;

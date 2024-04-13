@@ -2,237 +2,83 @@
 
 using namespace std;
 
-bool Storage::begin() {
-	if(!SD.begin(BUILTIN_SDCARD)) {
-		Serial.println("Storage: SD card initialization failure");
-		return false;
-	}
-
-	if(!readPins()) {
-		return false;
-	}
-
-	verifyJson();
-	readJson();
-	return true;
+void Storage::begin() {
+	read(UP_DELAY_ADDRESS, 50);
+	read(DOWN_DELAY_ADDRESS, 200);
+	read(OUTPUT_ADDRESS, 50);
+	read(TIMEOUT_ADDRESS, 300);
+	read(START_ADDRESS, 1600);
+	read(END_ADDRESS, 1400);
+	read(FRICTION_ADDRESS, 1500);
+	read(AUTO_LAUNCH_ADDRESS, 0);
 }
 
-bool Storage::readPins() {
-	File file = SD.open("/pins.json", FILE_READ);
-	if(!file) {
-		Serial.println("Storage: Could not open 'pins.json'");
-		return false;
+int Storage::read(int address, short defaultValue) {
+	uint16_t data;
+	EEPROM.get(address, data);
+	if(data == 0xFFFF) {
+		EEPROM.put(address, defaultValue);
 	}
 
-	DynamicJsonDocument doc(JSON_SIZE);
-	deserializeJson(doc, file);
-	file.close();
-
-	std::vector<const char*> keys = {
-		"up",
-		"down",
-		"clutchLeft",
-		"clutchRight",
-		"IA",
-		"IB",
-		"ecuUp",
-		"ecuDown",
-		"servo"
-	};
-
-	for(auto i : keys) {
-		if(!doc.containsKey(i) || doc[i].isNull()) {
-			Serial.println("Storage: Key '" + String(i) + "' not found in 'pins.json'");
-			return false;
-		}
-	}
-
-	_up = doc["up"];
-	_down = doc["down"];
-	_clutchLeft = doc["clutchLeft"];
-	_clutchRight = doc["clutchRight"];
-	_IA = doc["IA"];
-	_IB = doc["IB"];
-	_ecuUp = doc["ecuUp"];
-	_ecuDown = doc["ecuDown"];
-	_servo = doc["servo"];
-
-	pinMode(_IA, OUTPUT);
-	pinMode(_IB, OUTPUT);
-
-	return true;
+	return read(address);
 }
 
-void Storage::verifyJson() {
-	File file = SD.open(filePath.c_str());
-	if(!file) {
-		SD.remove(filePath.c_str());
-		writeJson();
-		Serial.println("Storage: '" + String(filePath.c_str()) + "' not found, loading defaults");
-		return;
-	}
+int Storage::read(int address) {
+	short data;
+	EEPROM.get(address, data);
+	return data;
+}
 
-	StaticJsonDocument<0> doc, filter;
-  	bool valid = deserializeJson(doc, file, DeserializationOption::Filter(filter)) == DeserializationError::Ok;
-	file.close();
-
-	if(!valid) {
-		SD.remove(filePath.c_str());
-		writeJson();
-		Serial.println("Storage: JSON error in '" + String(filePath.c_str()) + "', loading defaults");
+void Storage::save(int address, short value) {
+	short data;
+	EEPROM.get(address, data);
+	if(data != value) {
+		EEPROM.put(address, value);
 	}
 }
 
-void Storage::writeJson() {
-	File file = SD.open(filePath.c_str(), FILE_WRITE);
-	if(!file) {
-		Serial.println("Storage: Could not open '" + String(filePath.c_str()) + "'");
-		return;
-	}
-
-	DynamicJsonDocument doc(JSON_SIZE);
-	
-	doc["gear"] = _gear;
-	doc["upDelay"] = _upDelay;
-	doc["downDelay"] = _downDelay;
-	doc["output"] = _output;
-	doc["timeout"] = _timeout;
-	doc["start"] = _start;
-	doc["end"] = _end;
-	doc["friction"] = _friction;
-	doc["autoLaunch"] = _autoLaunch;
-	
-	file.truncate();
-	serializeJsonPretty(doc, file);
-
-	file.close();
-}
-
-void Storage::readJson() {
-	File file = SD.open(filePath.c_str(), FILE_READ);
-	if(!file) {
-		Serial.println("Storage: Could not open '" + String(filePath.c_str()) + "'");
-		return;
-	}
-
-	DynamicJsonDocument doc(JSON_SIZE);
-	deserializeJson(doc, file);
-	file.close();
-
-	_gear = doc["gear"];
-	_upDelay = doc["upDelay"];
-	_downDelay = doc["downDelay"];
-	_output = doc["output"];
-	_timeout = doc["timeout"];
-	_start = doc["start"];
-	_end = doc["end"];
-	_friction = doc["friction"];
-	_autoLaunch = doc["autoLaunch"];
-}
-
-int Storage::up() {
-	return _up;
-}
-
-int Storage::down() {
-	return _down;
-}
-
-int Storage::clutchLeft() {
-	return _clutchLeft;
-}
-
-int Storage::clutchRight() {
-	return _clutchRight;
-}
-
-int Storage::IA() {
-	return _IA;
-}
-int Storage::IB() {
-	return _IB;
-}
-
-int Storage::ecuUp() {
-	return _ecuUp;
-}
-
-int Storage::ecuDown() {
-	return _ecuDown;
-}
-
-int Storage::servo() {
-	return _servo;
-}
-
-int Storage::gear() { return _gear; }
-void Storage::gear(int value) {
-	if(value != _gear) {
-		_gear = value;
-		writeJson();
+void Storage::clear() {
+	for (int i = 0; i < EEPROM.length(); i++) {
+		EEPROM.write(i, 0xFF);
 	}
 }
 
-int Storage::upDelay() { return _upDelay; }
+int Storage::upDelay() { return read(UP_DELAY_ADDRESS); }
 void Storage::upDelay(int value) {
-	if(value != _upDelay) {
-		_upDelay = value;
-		writeJson();
-	}
+	save(UP_DELAY_ADDRESS, value);
 }
 
-int Storage::downDelay() { return _downDelay; }
+int Storage::downDelay() { return read(DOWN_DELAY_ADDRESS); }
 void Storage::downDelay(int value) {
-	if(value != _downDelay) {
-		_downDelay = value;
-		writeJson();
-	}
+	save(DOWN_DELAY_ADDRESS, value);
 }
 
-int Storage::output() { return _output; }
+int Storage::output() { return read(OUTPUT_ADDRESS); }
 void Storage::output(int value) {
-	if(value != _output) {
-		_output = value;
-		writeJson();
-	}
+	save(OUTPUT_ADDRESS, value);
 }
 
-int Storage::timeout() { return _timeout; }
+int Storage::timeout() { return read(TIMEOUT_ADDRESS); }
 void Storage::timeout(int value) {
-	if(value != _timeout) {
-		_timeout = value;
-		writeJson();
-	}
+	save(TIMEOUT_ADDRESS, value);
 }
 
-int Storage::start() { return _start; }
+int Storage::start() { return read(START_ADDRESS); }
 void Storage::start(int value) {
-	if(value != _start) {
-		_start = value;
-		writeJson();
-	}
+	save(START_ADDRESS, value);
 }
 
-int Storage::end() { return _end; }
+int Storage::end() { return read(END_ADDRESS); }
 void Storage::end(int value) {
-	if(value != _end) {
-		_end = value;
-		writeJson();
-	}
+	save(END_ADDRESS, value);
 }
 
-int Storage::friction() { return _friction; }
+int Storage::friction() { return read(FRICTION_ADDRESS); }
 void Storage::friction(int value) {
-	if(value != _friction) {
-		_friction = value;
-		writeJson();
-	}
+	save(FRICTION_ADDRESS, value);
 }
 
-bool Storage::autoLaunch() { return _autoLaunch; }
-void Storage::autoLaunch(bool value) {
-	if(value != _autoLaunch) {
-		_autoLaunch = value;
-		writeJson();
-	}
+int Storage::autoLaunch() { return read(AUTO_LAUNCH_ADDRESS); }
+void Storage::autoLaunch(int value) {
+	save(AUTO_LAUNCH_ADDRESS, value);
 }

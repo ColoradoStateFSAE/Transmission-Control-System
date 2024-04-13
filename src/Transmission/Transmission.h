@@ -40,9 +40,7 @@ class Transmission : public FiniteStateMachine{
 
 	unsigned long shiftStartTime = 0;
 	unsigned long lastBroadastTime = 0;
-
-	void changeGear(Transmission::Direction direction);
-	void disableCombustion();
+	
 	void upRoutine();
 	void downRoutine();
 };
