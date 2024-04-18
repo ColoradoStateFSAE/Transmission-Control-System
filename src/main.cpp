@@ -46,36 +46,36 @@ void loop() {
 
 	int start = micros();
 
-	// // Read CAN
-	// can.update();
+	// Read CAN
+	can.update();
 
-	// // Handle input
-	// up.update();
-	// down.update();
-	// analogInput.update();
+	// Handle input
+	up.update();
+	down.update();
+	analogInput.update();
 
-	// if(up.pressed()) {
-	// 	console.pause();
-	// 	transmission.shift(Transmission::Direction::UP);
-	// } else if(down.pressed()) {
-	// 	console.pause();
-	// 	transmission.shift(Transmission::Direction::DOWN);
-	// }
+	if(up.pressed()) {
+		console.pause();
+		transmission.shift(Transmission::Direction::UP);
+	} else if(down.pressed()) {
+		console.pause();
+		transmission.shift(Transmission::Direction::DOWN);
+	}
 
-	// clutch.input = analogInput.travel();
+	clutch.input = analogInput.travel();
 
-	// if(clutch.state() != Clutch::State::ANALOG_INPUT) {
-	// 	console.pause();
-	// }
+	if(clutch.state() != Clutch::State::ANALOG_INPUT) {
+		console.pause();
+	}
 
 	// Update finite-state machines
-	// transmission.update();
+	transmission.update();
 	clutch.update();
 	
 	// Send data over CAN
-	// can.broadcast(200);
-	// can.broadcastClutchPosition(clutch.percentage(), 20);
-	// can.broadcastInput(analogInput.travel(), 20);
+	can.broadcast(200);
+	can.broadcastClutchPosition(clutch.percentage(), 20);
+	can.broadcastInput(analogInput.travel(), 20);
 
 	#if DEBUG
 	console.printInfo(analogInput.travel(), storage);
