@@ -24,8 +24,12 @@ int Storage::read(int address, short defaultValue) {
 }
 
 int Storage::read(int address) {
+	auto start = micros();
+	
+
 	short data;
 	EEPROM.get(address, data);
+	Serial.println(String(micros() - start));
 	return data;
 }
 

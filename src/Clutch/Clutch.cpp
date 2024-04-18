@@ -34,7 +34,6 @@ void Clutch::update() {
 				int servoWrite = map(input, 0.0f, 100.0f, storage.start(), storage.end());
 				writeMicroseconds(servoWrite);
 			}
-			
 			break;
 		}
 

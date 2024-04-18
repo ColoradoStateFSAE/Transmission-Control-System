@@ -8,7 +8,7 @@
 #include "Can/Can.h"
 #include "Console/Console.h"
 
-#define DEBUG true
+#define DEBUG false
 
 Console console;
 Adafruit_NeoPixel pixels(1, 5, NEO_GRB + NEO_KHZ800);
@@ -26,7 +26,7 @@ void setup() {
 	pixels.show();
 
 	can.begin();
-	console.begin(115200);
+	console.begin(9600);
 	storage.begin();
 	
 	up.begin(storage.UP);
@@ -44,37 +44,39 @@ void loop() {
 	int start = micros();
 	#endif
 
-	// Read CAN
-	can.update();
+	int start = micros();
 
-	// Handle input
-	up.update();
-	down.update();
-	analogInput.update();
+	// // Read CAN
+	// can.update();
 
-	if(up.pressed()) {
-		console.pause();
-		transmission.shift(Transmission::Direction::UP);
-	} else if(down.pressed()) {
-		console.pause();
-		transmission.shift(Transmission::Direction::DOWN);
-	}
+	// // Handle input
+	// up.update();
+	// down.update();
+	// analogInput.update();
 
-	clutch.input = analogInput.travel();
+	// if(up.pressed()) {
+	// 	console.pause();
+	// 	transmission.shift(Transmission::Direction::UP);
+	// } else if(down.pressed()) {
+	// 	console.pause();
+	// 	transmission.shift(Transmission::Direction::DOWN);
+	// }
 
-	if(clutch.state() != Clutch::State::ANALOG_INPUT) {
-		console.pause();
-	}
+	// clutch.input = analogInput.travel();
+
+	// if(clutch.state() != Clutch::State::ANALOG_INPUT) {
+	// 	console.pause();
+	// }
 
 	// Update finite-state machines
-	transmission.update();
+	// transmission.update();
 	clutch.update();
 	
 	// Send data over CAN
-	can.broadcast(200);
-	can.broadcastClutchPosition(clutch.percentage(), 20);
-	can.broadcastInput(analogInput.travel(), 20);
-	
+	// can.broadcast(200);
+	// can.broadcastClutchPosition(clutch.percentage(), 20);
+	// can.broadcastInput(analogInput.travel(), 20);
+
 	#if DEBUG
 	console.printInfo(analogInput.travel(), storage);
 	console.update(micros()-start);

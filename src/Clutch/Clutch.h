@@ -36,7 +36,7 @@ class Clutch : public FiniteStateMachine {
 	Servo servo;
 
 	unsigned long lastBroadcastTime = 0;
-	int servoPosition = 0;
+	int servoPosition = -1;
 
 	unsigned long autoLanchStartTime = 0;
 	int autoLaunchPosition = 0;

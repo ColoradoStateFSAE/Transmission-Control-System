@@ -34,15 +34,6 @@ void Console::printSdError() {
 }
 
 void Console::printInfo(float input, Storage &storage) {
-	if(5000 > millis() - lastPauseTime) {
-		return;
-	}
-
-	unsigned long delayTime = 250;
-	if(Serial.available() > 0) {
-		delayTime = 2000;
-	}
-
 	String tempColor = [&]() -> String {
 		float temperature = tempmonGetTemp();
 		if(temperature >= 95) {
@@ -54,7 +45,7 @@ void Console::printInfo(float input, Storage &storage) {
 		}
 	}();
 
-	if(millis() - lastPrintTime > delayTime) {
+	if(millis() - lastPrintTime > 250) {
 		clear();
 		Serial.println("CPU TEMP: " + String(tempColor) + String(round(tempmonGetTemp())) + String(" °C") + RESET);
 		Serial.println("LOOP TIME:");

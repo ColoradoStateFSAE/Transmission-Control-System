@@ -132,37 +132,5 @@ void Can::broadcast(unsigned long frequency) {
 		
 		broadcastShiftSettings();
 		broadcastClutchSettings();
-
-		// CAN_message_t a;
-		// a.id = R3_GROUP0_FRAME_ID;
-		// interface.write(a);
-
-		// {
-		// CAN_message_t msg;
-		// msg.id = R3_GROUP15_FRAME_ID;
-		// msg.buf[0] = 0x00;
-		// msg.buf[1] = 0x85;
-		// msg.buf[2] = 0x00;
-		// msg.buf[3] = 0x00;
-		// msg.buf[4] = 0xFC;
-		// msg.buf[5] = 0x0B;
-		// msg.buf[6] = 0x03;
-		// msg.buf[7] = 0x49;
-		// interface.write(msg);
-		// }
-
-		// {
-		// CAN_message_t msg;
-		// msg.id = R3_GROUP20_FRAME_ID;
-		// msg.buf[0] = 0x0B;
-		// msg.buf[1] = 0x36;
-		// msg.buf[2] = 0x0F;
-		// msg.buf[3] = 0x5B;
-		// msg.buf[4] = 0x00;
-		// msg.buf[5] = 0x00;
-		// msg.buf[6] = 0x09;
-		// msg.buf[7] = 0x1C;
-		// interface.write(msg);
-		// }
 	}
 }
