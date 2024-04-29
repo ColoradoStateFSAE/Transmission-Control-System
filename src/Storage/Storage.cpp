@@ -5,10 +5,10 @@ using namespace std;
 void Storage::begin() {
 	read(UP_DELAY_ADDRESS, 50);
 	read(DOWN_DELAY_ADDRESS, 200);
-	read(OUTPUT_ADDRESS, 50);
+	read(OUTPUT_ADDRESS, 90);
 	read(TIMEOUT_ADDRESS, 300);
 	read(START_ADDRESS, 1600);
-	read(END_ADDRESS, 1400);
+	read(END_ADDRESS, 1300);
 	read(FRICTION_ADDRESS, 1500);
 	read(AUTO_LAUNCH_ADDRESS, 0);
 }
@@ -24,12 +24,8 @@ int Storage::read(int address, short defaultValue) {
 }
 
 int Storage::read(int address) {
-	auto start = micros();
-	
-
 	short data;
 	EEPROM.get(address, data);
-	Serial.println(String(micros() - start));
 	return data;
 }
 

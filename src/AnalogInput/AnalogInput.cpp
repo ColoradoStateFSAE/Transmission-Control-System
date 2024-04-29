@@ -1,11 +1,12 @@
 #include "AnalogInput.h"
 
 AnalogInput::AnalogInput(uint16_t samples) : _samples(samples) {
-
+	
 }
 
 void AnalogInput::begin(int pin) {
 	_pin = pin;
+	pinMode(_pin, INPUT_PULLUP);
 	
 	for (int i = 0; i < _samples; i++) {
 		runningAverage.add(analogRead(_pin));
@@ -21,6 +22,20 @@ void AnalogInput::maxDeadzone(float percent) {
 }
 
 void AnalogInput::update() {
+	if(analogRead(_pin) >= 800) {
+		recalibrate = true;
+		return;
+	}
+
+	if(recalibrate) {
+		recalibrate = false;
+		min = std::numeric_limits<float>::max();
+		max = 0;
+		for (int i = 0; i < _samples; i++) {
+			runningAverage.add(analogRead(_pin));
+		}
+	}
+
 	runningAverage.add(analogRead(_pin));
 	float average = runningAverage.getFastAverage();
 
@@ -39,7 +54,7 @@ void AnalogInput::update() {
 	float maxDeadzoneScaled = max - (max - min) * (1 - _maxDeadzone);
 
 	percentage = map(average, minDeadzoneScaled, maxDeadzoneScaled, 0.0f, 100.0f);
-	percentage = constrain(percentage, 0.0f, 100.0f);	
+	percentage = constrain(percentage, 0.0f, 100.0f);
 }
 
 float AnalogInput::travel() {

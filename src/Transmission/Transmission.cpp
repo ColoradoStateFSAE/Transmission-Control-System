@@ -2,7 +2,11 @@
 
 Transmission::Transmission(Clutch &clutchRef, Can &canRef, Storage &settingsRef) : FiniteStateMachine(IDLE), clutch(clutchRef), can(canRef), storage(settingsRef) {
 	pinMode(storage.ECU_UP, OUTPUT);
+	pinMode(storage.IA, OUTPUT);
+	pinMode(storage.IB, OUTPUT);
 	pinMode(13, OUTPUT);
+
+	digitalWrite(storage.ECU_UP, HIGH);
 }
 
 void Transmission::shift(Transmission::Direction direction) {
@@ -27,13 +31,13 @@ void Transmission::shift(Transmission::Direction direction) {
 }
 
 void Transmission::upRoutine() {
-	int pin = storage.IA;
+	const int pin = storage.IA;
 
 	switch(state()) {
 		case UP_SPARK_CUT:
 			runOnce([&](){
 				Serial.println("COMBUSTION DISABLE: " + String(millis() - shiftStartTime));
-				digitalWrite(storage.ECU_UP, !digitalRead(storage.ECU_UP));
+				digitalWrite(storage.ECU_UP, LOW);
 			});
 
 			waitAndSetState(storage.upDelay(), [](){
@@ -44,7 +48,7 @@ void Transmission::upRoutine() {
 		case UP_ENABLE_SOLENOID:
 			runOnce([&](){
 				Serial.println("SOLENOID ENABLE: " + String(millis() - shiftStartTime));
-				if(can.rpm >= 500) digitalWrite(pin, HIGH);
+				digitalWrite(pin, HIGH);
 				digitalWrite(13, HIGH);
 			});
 
@@ -57,6 +61,7 @@ void Transmission::upRoutine() {
 			runOnce([&](){
 				Serial.println("SOLENOID DISABLE: " + String(millis() - shiftStartTime));
 				digitalWrite(pin, LOW);
+				digitalWrite(storage.ECU_UP, HIGH);
 				digitalWrite(13, LOW);
 			});
 
@@ -66,7 +71,7 @@ void Transmission::upRoutine() {
 }
 
 void Transmission::downRoutine() {
-	int pin = storage.IB;
+	const int pin = storage.IB;
 
 	switch(state()) {
 		case DOWN_CLUTCH_IN: {
@@ -91,7 +96,8 @@ void Transmission::downRoutine() {
 		case DOWN_ENABLE_SOLENOID: {
 			runOnce([&](){
 				Serial.println("SOLENOID ENABLE: " + String(millis() - shiftStartTime));
-				if(can.rpm >= 500) digitalWrite(pin, HIGH);
+				// if(can.rpm >= 500)
+				digitalWrite(pin, HIGH);
 				digitalWrite(13, HIGH);
 			});
 

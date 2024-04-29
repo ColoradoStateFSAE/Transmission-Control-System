@@ -15,7 +15,9 @@ Adafruit_NeoPixel pixels(1, 5, NEO_GRB + NEO_KHZ800);
 Storage storage;
 Button up;
 Button down;
-AnalogInput analogInput(512);
+AnalogInput clutchRight(512);
+AnalogInput clutchLeft(512);
+
 Clutch clutch(storage);
 Can can(clutch, storage);
 Transmission transmission(clutch, can, storage);
@@ -32,9 +34,13 @@ void setup() {
 	up.begin(storage.UP);
 	down.begin(storage.DOWN);
 
-	analogInput.begin(storage.CLUTCH_RIGHT);
-	analogInput.minDeadzone(20);
-	analogInput.maxDeadzone(20);
+	clutchRight.begin(storage.CLUTCH_RIGHT);
+	clutchRight.minDeadzone(20);
+	clutchRight.maxDeadzone(20);
+
+	clutchLeft.begin(storage.CLUTCH_LEFT);
+	clutchLeft.minDeadzone(20);
+	clutchLeft.maxDeadzone(20);
 
 	clutch.begin(storage.SERVO);
 }
@@ -44,15 +50,14 @@ void loop() {
 	int start = micros();
 	#endif
 
-	int start = micros();
-
 	// Read CAN
 	can.update();
 
 	// Handle input
 	up.update();
 	down.update();
-	analogInput.update();
+	clutchRight.update();
+	clutchLeft.update();
 
 	if(up.pressed()) {
 		console.pause();
@@ -62,7 +67,7 @@ void loop() {
 		transmission.shift(Transmission::Direction::DOWN);
 	}
 
-	clutch.input = analogInput.travel();
+	clutch.input = max(clutchRight.travel(), clutchLeft.travel());
 
 	if(clutch.state() != Clutch::State::ANALOG_INPUT) {
 		console.pause();
@@ -75,10 +80,10 @@ void loop() {
 	// Send data over CAN
 	can.broadcast(200);
 	can.broadcastClutchPosition(clutch.percentage(), 20);
-	can.broadcastInput(analogInput.travel(), 20);
+	can.broadcastInput(clutchRight.travel(), 20);
 
 	#if DEBUG
-	console.printInfo(analogInput.travel(), storage);
+	console.printInfo(analogInput.travel(), clutchLeft.travel(), storage);
 	console.update(micros()-start);
 	#endif
 }

@@ -5,7 +5,7 @@
 
 class Button {
   public:
-	void begin(int pin, int debounce=2000);
+	void begin(int pin, int debounce=3000);
 	void update();
 	bool pressed();
 

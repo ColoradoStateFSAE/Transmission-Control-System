@@ -26,6 +26,7 @@ class AnalogInput {
 	float min = std::numeric_limits<float>::max();
 	float max = 0;
 	float percentage = 0;
+	bool recalibrate = false;
 };
 
 #endif

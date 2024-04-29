@@ -18,7 +18,7 @@ class Console {
 	void print(double number);
 	
 	void printSdError();
-	void printInfo(float input, Storage &storage);
+	void printInfo(float input, float input2, Storage &storage);
 
 	const String RED = "\033[0;31m";
 	const String GREEN = "\033[0;32m";

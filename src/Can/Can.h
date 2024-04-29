@@ -11,7 +11,7 @@
 
 class Can {
   public:
-	FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_16> interface;
+	FlexCAN_T4<CAN1, RX_SIZE_16, TX_SIZE_16> interface;
 
 	Can(Clutch &clutch, Storage &storage);
 	void begin();

@@ -33,7 +33,7 @@ void Console::printSdError() {
 	delay(2000);
 }
 
-void Console::printInfo(float input, Storage &storage) {
+void Console::printInfo(float input, float input2, Storage &storage) {
 	String tempColor = [&]() -> String {
 		float temperature = tempmonGetTemp();
 		if(temperature >= 95) {
@@ -54,7 +54,8 @@ void Console::printInfo(float input, Storage &storage) {
 		Serial.print("LOW: " + String(round(runningAverage.getMin())) + " μs    ");
 		Serial.print("STD DEV: " + String(round(runningAverage.getStandardDeviation())) + " μs");
 		Serial.println();
-		Serial.println("ANALOG INPUT: " + String(input) + " %");
+		Serial.println("CLUTCH R: " + String(input) + " %");
+		Serial.println("CLUTCH L: " + String(input2) + " %");
 		Serial.println();
 		Serial.println("UP DELAY: " + String(storage.upDelay()));
 		Serial.println("DOWN DELAY: " + String(storage.downDelay()));

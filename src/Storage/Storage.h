@@ -12,15 +12,16 @@ class Storage {
 	void save(int address, short value);
 	void clear();
 
-	const int UP = 41;
-	const int DOWN = 40;
-	const int CLUTCH_LEFT = -1;
-	const int CLUTCH_RIGHT = 15;
-	const int IA = 16;
-	const int IB = 17;
+	const int LED = 5;
+	const int UP = 6;
+	const int DOWN = 7;
+	const int CLUTCH_LEFT = 16;
+	const int CLUTCH_RIGHT = 17;
+	const int IA = 15;
+	const int IB = 14;
 	const int ECU_UP = 9;
 	const int ECU_DOWN = 8;
-	const int SERVO = 37;
+	const int SERVO = 28;
 
 	// Saved values from EEPROM
 	int upDelay();
