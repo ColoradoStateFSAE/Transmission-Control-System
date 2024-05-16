@@ -1,6 +1,6 @@
 #include "Transmission.h"
 
-Transmission::Transmission(Clutch &clutchRef, Can &canRef, Storage &settingsRef) : FiniteStateMachine(IDLE), clutch(clutchRef), can(canRef), storage(settingsRef) {
+Transmission::Transmission(Clutch &clutchRef, Can &canRef, Storage &storageRef) : FiniteStateMachine(IDLE), clutch(clutchRef), can(canRef), storage(storageRef) {
 	pinMode(storage.ECU_UP, OUTPUT);
 	pinMode(storage.IA, OUTPUT);
 	pinMode(storage.IB, OUTPUT);
@@ -18,7 +18,7 @@ void Transmission::shift(Transmission::Direction direction) {
 	CAN_message_t msg;
 	msg.id = 522;
 	can.interface.write(msg);
-
+	
 	shiftStartTime = millis();
 
 	if(direction == UP) {
@@ -96,7 +96,6 @@ void Transmission::downRoutine() {
 		case DOWN_ENABLE_SOLENOID: {
 			runOnce([&](){
 				Serial.println("SOLENOID ENABLE: " + String(millis() - shiftStartTime));
-				// if(can.rpm >= 500)
 				digitalWrite(pin, HIGH);
 				digitalWrite(13, HIGH);
 			});

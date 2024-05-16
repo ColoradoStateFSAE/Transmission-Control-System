@@ -29,7 +29,7 @@ class Transmission : public FiniteStateMachine{
 	};
 
 	Transmission() = delete;
-	Transmission(Clutch &clutchRef, Can &canRef, Storage &settingsRef);
+	Transmission(Clutch &clutchRef, Can &canRef, Storage &storageRef);
 	void shift(Transmission::Direction direction);
 	void update();
 

@@ -31,6 +31,7 @@ void AnalogInput::update() {
 		recalibrate = false;
 		min = std::numeric_limits<float>::max();
 		max = 0;
+		delay(50);
 		for (int i = 0; i < _samples; i++) {
 			runningAverage.add(analogRead(_pin));
 		}

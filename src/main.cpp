@@ -35,11 +35,11 @@ void setup() {
 	down.begin(storage.DOWN);
 
 	clutchRight.begin(storage.CLUTCH_RIGHT);
-	clutchRight.minDeadzone(20);
+	clutchRight.minDeadzone(10);
 	clutchRight.maxDeadzone(20);
 
 	clutchLeft.begin(storage.CLUTCH_LEFT);
-	clutchLeft.minDeadzone(20);
+	clutchLeft.minDeadzone(10);
 	clutchLeft.maxDeadzone(20);
 
 	clutch.begin(storage.SERVO);
@@ -67,7 +67,7 @@ void loop() {
 		transmission.shift(Transmission::Direction::DOWN);
 	}
 
-	clutch.input = max(clutchRight.travel(), clutchLeft.travel());
+	clutch.input = clutchRight.travel();
 
 	if(clutch.state() != Clutch::State::ANALOG_INPUT) {
 		console.pause();

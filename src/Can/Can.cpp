@@ -22,6 +22,7 @@ void Can::update() {
 				r3_group0_t message;
 				r3_group0_unpack(&message, msg.buf, sizeof(msg.buf));
 				_rpm = r3_group0_rpm_decode(message.rpm);
+				clutch.rpm = r3_group0_rpm_decode(message.rpm);
 				break;
 			}
 

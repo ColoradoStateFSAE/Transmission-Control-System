@@ -28,12 +28,8 @@ int Clutch::percentage() {
 void Clutch::update() {
 	switch(state()) {
 		case ANALOG_INPUT: {
-			if(storage.autoLaunch() && 90 <= input) {
-				state(State::HOLD_END);
-			} else {
-				int servoWrite = map(input, 0.0f, 100.0f, storage.start(), storage.end());
-				writeMicroseconds(servoWrite);
-			}
+			int servoWrite = map(input, 0.0f, 100.0f, storage.start(), storage.end());
+			writeMicroseconds(servoWrite);
 			break;
 		}
 
