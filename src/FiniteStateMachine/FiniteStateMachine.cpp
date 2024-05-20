@@ -14,6 +14,7 @@ void FiniteStateMachine::state(State newState) {
 	lastStateChangeTime = millis();
 	currentState = newState;
 	runAction = true;
+	initializeIncrement = true;
 }
 
 void FiniteStateMachine::runOnce(function<void()> action) {
@@ -38,10 +39,12 @@ void FiniteStateMachine::timedLoop(unsigned long time, function<void()> action) 
 }
 
 bool FiniteStateMachine::incrementOverTime(int &value, int finish, unsigned long time) {
-	if(incrementValue == 0) {
+	if(initializeIncrement) {
 		incrementValue = static_cast<double>(value);
 		amount = (static_cast<double>(finish) - incrementValue) / time;
 		increasing = finish > value;
+
+		initializeIncrement = false;
 		startTime = millis();
 	}
 

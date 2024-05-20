@@ -1,24 +1,21 @@
 #include "Button.h"
 
-Button::Button(int pin, int debounce) {
-	buttonPin = pin;
-	debounceDelay = debounce;
-}
-
-void Button::begin() {
-	pinMode(buttonPin, INPUT_PULLUP);
+void Button::begin(int pin, int debounce) {
+	_pin = pin;
+	_debounce = debounce;
+	pinMode(_pin, INPUT_PULLUP);
 }
 
 void Button::update() {
 	bool pressed = false;
 
-	int state = digitalRead(buttonPin);
+	int state = digitalRead(_pin);
 
 	if (state != lastButtonState) {
 		lastDebounceTime = micros();
 	}
 
-	if ((micros() - lastDebounceTime) >= debounceDelay) {
+	if ((micros() - lastDebounceTime) >= _debounce) {
 		if (state != buttonState) {
 			buttonState = state;
 			if (buttonState == LOW) {

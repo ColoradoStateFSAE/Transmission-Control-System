@@ -9,7 +9,7 @@
 #include "FiniteStateMachine/FiniteStateMachine.h"
 #include "canutil/canutil.h"
 
-class Clutch {
+class Clutch : public FiniteStateMachine {
   public:
 	enum State {
 		IDLE,
@@ -20,24 +20,24 @@ class Clutch {
 		HOLD_FRICTION,
 		GOTO_START,
 	};
-
-	FiniteStateMachine fsm;
+	
 	float input = 0;
 
-	Clutch(int _pin, FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &canRef, Storage &storageRef);
+	Clutch() = delete;
+	Clutch(Storage &storageRef);
+	void begin(int pin);
 	void writeMicroseconds(int value);
-	void broadcastValues(unsigned long frequency);
 	int position();
+	int percentage();
 	void update();
+	int rpm = 0;
 
   private:
-	const int pin;
-	FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &can;
 	Storage &storage;
 	Servo servo;
 
 	unsigned long lastBroadcastTime = 0;
-	int servoPosition = 0;
+	int servoPosition = -1;
 
 	unsigned long autoLanchStartTime = 0;
 	int autoLaunchPosition = 0;

@@ -1,16 +1,13 @@
 #include "Clutch.h"
 
-Clutch::Clutch(
-	int pin,
-	FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &canRef,
-	Storage &storageRef) :
-	fsm(ANALOG_INPUT),
-	pin(pin),
-	can(canRef),
-	storage(storageRef) {
-		servo.attach(pin);
-		servo.writeMicroseconds(storage.start());
-	}
+Clutch::Clutch(Storage &storageRef) : FiniteStateMachine(ANALOG_INPUT), storage(storageRef) {
+
+}
+
+void Clutch::begin(int pin) {
+	servo.attach(pin);
+	servo.writeMicroseconds(storage.start());
+}
 
 void Clutch::writeMicroseconds(int value) {
 	value = constrain(value, storage.end(), storage.start());
@@ -18,94 +15,76 @@ void Clutch::writeMicroseconds(int value) {
 	servo.writeMicroseconds(value);
 }
 
-void Clutch::broadcastValues(unsigned long frequency) {
-	if (millis() - lastBroadcastTime >= frequency) {
-		lastBroadcastTime = millis();
-
-		CAN_message_t msg;
-		msg.id = 1622;
-		canutil::constructData(msg, storage.start(), 0, 2);
-		canutil::constructData(msg, storage.end(), 2, 2);
-		canutil::constructData(msg, storage.friction(), 4, 2);
-		canutil::constructData(msg, servoPosition, 6, 2);
-		can.write(msg);
-
-		CAN_message_t autoLaunchMsg;
-		autoLaunchMsg.id = 1625;
-		autoLaunchMsg.buf[0] = storage.autoLaunch();
-		can.write(autoLaunchMsg);
-	}
-}
-
 int Clutch::position() {
 	return servoPosition;
 }
 
+int Clutch::percentage() {
+	float normalizedValue = (float)(servoPosition - storage.start()) / (storage.end() - storage.start());
+	normalizedValue = round(normalizedValue * 100);
+	return normalizedValue;
+}
+
 void Clutch::update() {
-	switch(fsm.state()) {
+	switch(state()) {
 		case ANALOG_INPUT: {
 			int servoWrite = map(input, 0.0f, 100.0f, storage.start(), storage.end());
 			writeMicroseconds(servoWrite);
-
-			if(storage.autoLaunch() && input >= 90) {
-				fsm.state(HOLD_END);
-				return;
-			}
 			break;
 		}
 
 		case HOLD_END: {
-			fsm.runOnce([&](){
-				Serial.println("\nHOLD END");
-			});
+			if(!storage.autoLaunch()) { state(State::ANALOG_INPUT); return; }
 
 			autoLaunchPosition = storage.end();
 			writeMicroseconds(autoLaunchPosition);
 
 			if(input <= 50) {
-				fsm.state(GOTO_FRICTION);
-			} else if(!storage.autoLaunch()) {
-				fsm.state(ANALOG_INPUT);
+				state(GOTO_FRICTION);
 			}
 			break;
 		}
 
 		case GOTO_FRICTION: {
-			fsm.runOnce([&](){
+			if(90 <= input) { state(State::ANALOG_INPUT); return; }
+
+			runOnce([&](){
 				autoLanchStartTime = millis();
-				Serial.println("GOTO FRICTION: " + String(millis() - autoLanchStartTime));
+				Serial.println("\nGOTO FRICTION: " + String(millis() - autoLanchStartTime));
 			});
 
-			if(!fsm.incrementOverTime(autoLaunchPosition, storage.friction(), 200)) {
-				fsm.state(HOLD_FRICTION);
+			if(!incrementOverTime(autoLaunchPosition, storage.friction(), 200)) {
+				state(HOLD_FRICTION);
 			}
 			writeMicroseconds(autoLaunchPosition);
-
 			break;
 		}
 
 		case HOLD_FRICTION: {
-			fsm.runOnce([&](){
+			if(90 <= input) { state(State::ANALOG_INPUT); return; }
+
+			runOnce([&](){
 				Serial.println("HOLD FRICTION: " + String(millis() - autoLanchStartTime));
 			});
 
-			fsm.waitAndSetState(500, [](){
+			waitAndSetState(500, [](){
 				// Wait 500 ms
 			}, GOTO_START);
 			break;
 		}
 
 		case GOTO_START: {
-			fsm.runOnce([&](){
+			if(90 <= input) { state(State::ANALOG_INPUT); return; }
+			
+			runOnce([&](){
 				Serial.println("GOTO START: " + String(millis() - autoLanchStartTime));
 			});
 
-			if(!fsm.incrementOverTime(autoLaunchPosition, storage.start(), 500)) {
+			if(!incrementOverTime(autoLaunchPosition, storage.start(), 500)) {
 				Serial.println("REACHED START: " + String(millis() - autoLanchStartTime));
-				fsm.state(ANALOG_INPUT);
+				state(ANALOG_INPUT);
 			}
 			writeMicroseconds(autoLaunchPosition);
-
 			break;
 		}
 	}

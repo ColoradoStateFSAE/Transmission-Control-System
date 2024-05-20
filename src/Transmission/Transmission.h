@@ -6,13 +6,13 @@
 #include "Clutch/Clutch.h"
 #include "Storage/Storage.h"
 #include "FiniteStateMachine/FiniteStateMachine.h"
-#include "canutil/canutil.h"
+#include "Can/Can.h"
 
-class Transmission {
+class Transmission : public FiniteStateMachine{
   public:
-  	enum {
-		UP = 0,
-		DOWN = 1
+  	enum Direction {
+		UP,
+		DOWN
 	};
 
 	enum State {
@@ -28,26 +28,19 @@ class Transmission {
 		DOWN_CLUTCH_OUT,
 	};
 
-	FiniteStateMachine fsm;
-
 	Transmission() = delete;
-	Transmission(Clutch &clutchRef, FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &canRef, Storage &settingsRef);
-
-	void broadcastValues(unsigned long frequency=0);
-	void shift(int direction);
+	Transmission(Clutch &clutchRef, Can &canRef, Storage &storageRef);
+	void shift(Transmission::Direction direction);
 	void update();
 
-  private:
-	const int OUTPUT_PINS[2] = {17, 18}; // {up, down}
-	
+  private:	
 	Clutch &clutch;
-	FlexCAN_T4<CAN3, RX_SIZE_256, TX_SIZE_64> &can;
+	Can &can;
 	Storage &storage;
 
 	unsigned long shiftStartTime = 0;
 	unsigned long lastBroadastTime = 0;
-
-	void disableCombustion();
+	
 	void upRoutine();
 	void downRoutine();
 };
