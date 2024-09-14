@@ -18,7 +18,3 @@ Uses existing pingle or kliktronic solenoids and replaces existing shifting elec
 
 ![image](https://github.com/ColoradoStateFSAE/Shifting-system/assets/45497901/029124a7-eb61-4bca-9c0d-cc61e725a79a)
 ![image](https://github.com/ColoradoStateFSAE/Shifting-system/assets/45497901/16bc343b-6edc-4ea3-bf92-b9842d30c58c)
-
-<div align="center">
-  <img src="https://github.com/user-attachments/assets/b50ab194-746a-4388-a420-ec247e9fc559" width="60%"/>
-</div>
