@@ -14,10 +14,6 @@ void Transmission::shift(Transmission::Direction direction) {
 		Serial.println(String("\x1b[31m") + "Additional shift attempted" + String("\x1b[0m"));
 		return;
 	}
-
-	CAN_message_t msg;
-	msg.id = 522;
-	can.interface.write(msg);
 	
 	shiftStartTime = millis();
 
