@@ -1,5 +1,7 @@
+
 # Transmission control system
-An electronic shifting solenoid and servo clutch driver system developed by CSU's formula SAE team!
+![Transmission Control System](https://github.com/user-attachments/assets/98a09840-d501-4c1e-9078-1e4b9dccaef6)
+An electronic shifting solenoid and servo clutch driver developed by CSU's formula SAE team.
 
 ![image](https://github.com/ColoradoStateFSAE/Shifting-system/assets/45497901/2e4a6da3-12e0-473e-a43f-4c8390fd686f)
 
@@ -17,3 +19,6 @@ Uses existing pingle or kliktronic solenoids and replaces existing shifting elec
 ![image](https://github.com/ColoradoStateFSAE/Shifting-system/assets/45497901/029124a7-eb61-4bca-9c0d-cc61e725a79a)
 ![image](https://github.com/ColoradoStateFSAE/Shifting-system/assets/45497901/16bc343b-6edc-4ea3-bf92-b9842d30c58c)
 
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/b50ab194-746a-4388-a420-ec247e9fc559" width="60%"/>
+</div>
