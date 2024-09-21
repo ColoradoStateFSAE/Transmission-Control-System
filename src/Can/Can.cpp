@@ -21,8 +21,7 @@ void Can::update() {
 				lastCanUpdate = millis();
 				r3_group0_t message;
 				r3_group0_unpack(&message, msg.buf, sizeof(msg.buf));
-				_rpm = r3_group0_rpm_decode(message.rpm);
-				clutch.rpm = r3_group0_rpm_decode(message.rpm);
+				rpm = r3_group0_rpm_decode(message.rpm);
 				break;
 			}
 
@@ -60,9 +59,10 @@ void Can::update() {
 	}
 
 	if(millis() - lastCanUpdate >= 100) {
-		_rpm = 0;
+		rpm = 0;
 	}
 }
+
 
 void Can::broadcastClutchPosition(int value, unsigned long frequency) {
 	static int lastBroadastTime = 0;
