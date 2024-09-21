@@ -18,8 +18,10 @@ void Transmission::shift(Transmission::Direction direction) {
 	shiftStartTime = millis();
 
 	if(direction == UP) {
+		Serial.print("RPM: ");
+		Serial.println(can.rpm);
 		Serial.println("\nUP");
-		if(can.rpm <= 6000 && clutch.input < 90) {
+		if(can.rpm <= 800 && clutch.input < 90) {
 			state(UP_CLUTCH_IN);
 		} else {
 			state(UP_SPARK_CUT);
@@ -44,7 +46,7 @@ void Transmission::upRoutine() {
 			});
 
 			// Allow a shorter delay if the clutch paddle is already in
-			int delay = storage.upDelay();
+			int delay = storage.downDelay();
 			if(clutch.input >= 90) {
 				delay = storage.upDelay();
 			}
