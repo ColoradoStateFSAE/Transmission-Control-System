@@ -9,8 +9,8 @@ void Can::begin() {
 	interface.setBaudRate(1000000);
 	interface.enableFIFO(true);
 	interface.setFIFOFilter(REJECT_ALL);
-	interface.setFIFOFilter(0, 1520, STD);
 	interface.setFIFOFilterRange(2, 1620, 1640, STD);
+	interface.setFIFOFilter(0, 864, STD);
 }
 
 void Can::update() {
