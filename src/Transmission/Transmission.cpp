@@ -21,7 +21,7 @@ void Transmission::shift(Transmission::Direction direction) {
 		Serial.print("RPM: ");
 		Serial.println(can.rpm);
 		Serial.println("\nUP");
-		if(can.rpm <= 800 && clutch.input < 90) {
+		if(can.rpm <= 6000 && clutch.input < 90) {
 			state(UP_CLUTCH_IN);
 		} else {
 			state(UP_SPARK_CUT);
