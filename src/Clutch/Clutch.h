@@ -30,7 +30,6 @@ class Clutch : public FiniteStateMachine {
 	int position();
 	int percentage();
 	void update();
-	int rpm = 0;
 
   private:
 	Storage &storage;

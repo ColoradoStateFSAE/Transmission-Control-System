@@ -18,9 +18,11 @@ class Transmission : public FiniteStateMachine{
 	enum State {
 		IDLE,
 
+		UP_CLUTCH_IN,
 		UP_SPARK_CUT,
 		UP_ENABLE_SOLENOID,
 		UP_DISABLE_SOLENOID,
+		UP_CLUTCH_OUT,
 
 		DOWN_CLUTCH_IN,
 		DOWN_ENABLE_SOLENOID,
