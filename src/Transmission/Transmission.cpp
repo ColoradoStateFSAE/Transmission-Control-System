@@ -79,6 +79,7 @@ void Transmission::upRoutine() {
 			runOnce([&](){
 				Serial.println("SOLENOID DISABLE: " + String(millis() - shiftStartTime));
 				digitalWrite(pin, LOW);
+				digitalWrite(storage.ECU_UP, HIGH);
 				digitalWrite(13, LOW);
 			});
 
