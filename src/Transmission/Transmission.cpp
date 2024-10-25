@@ -2,11 +2,13 @@
 
 Transmission::Transmission(Clutch &clutchRef, Can &canRef, Storage &storageRef) : FiniteStateMachine(IDLE), clutch(clutchRef), can(canRef), storage(storageRef) {
 	pinMode(storage.ECU_UP, OUTPUT);
+	pinMode(storage.ECU_DOWN, OUTPUT);
 	pinMode(storage.IA, OUTPUT);
 	pinMode(storage.IB, OUTPUT);
 	pinMode(13, OUTPUT);
 
 	digitalWrite(storage.ECU_UP, HIGH);
+	digitalWrite(storage.ECU_DOWN, HIGH);
 }
 
 void Transmission::shift(Transmission::Direction direction) {
@@ -46,7 +48,7 @@ void Transmission::upRoutine() {
 			// Allow a shorter delay if the clutch paddle is already in
 			int delay = storage.downDelay();
 			if(clutch.input >= 90) {
-				delay = storage.upDelay();
+				delay = 0;
 			}
 
 			// Wait for the delay and set next state
@@ -127,13 +129,23 @@ void Transmission::downRoutine() {
 			// Allow a shorter delay if the clutch paddle is already in
 			int delay = storage.downDelay();
 			if(clutch.input >= 90) {
-				delay = storage.upDelay();
+				delay = 0;
 			}
 
 			// Wait for the delay and set next state
-			waitAndSetState(delay, [](){}, DOWN_ENABLE_SOLENOID);
+			waitAndSetState(delay, [](){}, DOWN_SPARK_CUT);
 			break;
 		}
+		
+		case DOWN_SPARK_CUT:
+			runOnce([&](){
+				Serial.println("COMBUSTION DISABLE: " + String(millis() - shiftStartTime));
+				digitalWrite(storage.ECU_DOWN, LOW);
+			});
+
+			// Wait for the up delay and set next state
+			waitAndSetState(storage.upDelay(), [](){}, DOWN_ENABLE_SOLENOID);
+			break;
 
 		case DOWN_ENABLE_SOLENOID: {
 			runOnce([&](){
@@ -151,6 +163,7 @@ void Transmission::downRoutine() {
 			runOnce([&](){
 				Serial.println("SOLENOID DISABLE: " + String(millis() - shiftStartTime));
 				digitalWrite(pin, LOW);
+				digitalWrite(storage.ECU_DOWN, HIGH);
 				digitalWrite(13, LOW);
 			});
 
