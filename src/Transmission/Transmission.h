@@ -25,6 +25,7 @@ class Transmission : public FiniteStateMachine{
 		UP_CLUTCH_OUT,
 
 		DOWN_CLUTCH_IN,
+		DOWN_SPARK_CUT,
 		DOWN_ENABLE_SOLENOID,
 		DOWN_DISABLE_SOLENOID,
 		DOWN_CLUTCH_OUT,
