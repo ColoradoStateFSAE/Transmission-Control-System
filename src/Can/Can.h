@@ -28,8 +28,6 @@ class Can {
 	Clutch &clutch;
 	Storage &storage;
 	unsigned long lastCanUpdate = 0;
-
-	int _rpm = 0;
 };
 
 #endif
