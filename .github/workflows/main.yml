@@ -1,0 +1,45 @@
+name: PlatformIO CI
+
+on: ["push", "pull_request"]
+
+jobs:
+  build-and-test:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Cache PlatformIO dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+          key: ${{ runner.os }}-pio
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13.1'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade platformio gcovr coveralls
+      - name: Compile for Teensy
+        run: pio run -e teensy41
+        
+      - name: Run tests
+        run: pio test -v -e test
+
+      - name: Generate coverage Report
+        run: |
+          gcovr -r . --coveralls -o coverage.json \
+            --exclude ".pio" \
+            --exclude "test" \
+            --exclude "lib/dbc"
+      - name: Upload to Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          files: coverage.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
