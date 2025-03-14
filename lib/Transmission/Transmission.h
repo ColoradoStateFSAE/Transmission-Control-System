@@ -33,10 +33,10 @@ class Transmission : public FiniteStateMachine {
 
     Transmission(Storage &storageRef, Servo &servoRef) : FiniteStateMachine(CLUTCH_MANUAL), storage(storageRef), servo(servoRef) {}
     virtual void begin();
-	  virtual bool overRev();
+	virtual bool overRev();
     virtual void shift(Transmission::Direction direction);
     virtual void clutchInput(float value);
-	  virtual void setGear(int8_t value);
+	virtual void setGear(int8_t value);
     virtual void setRpm(int value);
     virtual void setClutchPosition(int position);
     virtual int clutchPosition();
