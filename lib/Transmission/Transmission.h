@@ -33,8 +33,10 @@ class Transmission : public FiniteStateMachine {
 
     Transmission(Storage &storageRef, Servo &servoRef) : FiniteStateMachine(CLUTCH_MANUAL), storage(storageRef), servo(servoRef) {}
     virtual void begin();
+	  virtual bool overRev();
     virtual void shift(Transmission::Direction direction);
     virtual void clutchInput(float value);
+	  virtual void setGear(int8_t value);
     virtual void setRpm(int value);
     virtual void setClutchPosition(int position);
     virtual int clutchPosition();
@@ -54,13 +56,16 @@ class Transmission : public FiniteStateMachine {
     
     Storage &storage;
     Servo &servo;
-
+	// overrev protection max rpm for gears 2-6
     int rpm = 0;
+	int8_t gear = 0;
     unsigned long shiftStartTime = 0;
 
     float _input = 0;
 
     void writeMicroseconds(int value);
+    const int MAXRPM[5] = {12389, 13336, 13860, 14249, 14308};
+
 };
 
 #endif

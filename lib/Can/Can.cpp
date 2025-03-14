@@ -5,6 +5,10 @@ using namespace std;
 void Can::begin() {
     interface.begin();
     interface.setBaudRate(1000000);
+	interface.enableFIFO(true);
+	interface.setFIFOFilter(REJECT_ALL);
+	interface.setFIFOFilterRange(2, 1620, 1640, STD);
+	interface.setFIFOFilter(0, 864, STD);
 }
 
 void Can::handleGroup0(const CAN_message_t &msg) {
@@ -12,8 +16,14 @@ void Can::handleGroup0(const CAN_message_t &msg) {
     r3_group0_unpack(&buf, msg.buf, sizeof(msg.buf));
 
     int rpm = r3_group0_rpm_decode(buf.rpm);
-    
     transmission.setRpm(rpm);
+}
+void Can::handleGroup39(const CAN_message_t &msg)
+{
+	r3_group39_t buf;
+	r3_group39_unpack(&buf, msg.buf, sizeof(msg.buf));
+	int8_t gear = r3_group39_gear_decode(buf.gear);
+	transmission.setGear(gear);
 }
 
 void Can::handleShiftSettings(const CAN_message_t &msg) {
@@ -67,6 +77,11 @@ void Can::update() {
     if(!interface.read(msg)) return;
 
     switch(msg.id) {
+		case R3_GROUP39_FRAME_ID: {
+            lastEcuUpdate = millis();
+            handleGroup39(msg);
+            break;
+        }
         case R3_GROUP0_FRAME_ID: {
             lastEcuUpdate = millis();
             handleGroup0(msg);
@@ -88,6 +103,21 @@ void Can::update() {
             break;
         }
     }
+}
+
+void Can::broadcastStatus() {
+	// broadcasts the status package (overrev, rpm limiter, antistall) over CAN using an unused ID
+	static unsigned long lastBroadastTime = 0;
+    if(millis() - lastBroadastTime >= 200) {
+        CAN_message_t msg;
+        msg.id = TCS_SET_STATUS_FRAME_ID; 
+        tcs_set_status_t buf;
+        buf.over_rev = tcs_set_status_over_rev_encode(transmission.overRev());
+        // buf.antistall = tcs_set_status_antistall_encode(transmission.antistall());
+        // buf.rpm_limiter = tcs_set_status_rpm_limiter_encode(transmission.rpmLimiter());
+        tcs_set_status_pack(msg.buf, &buf, sizeof(msg.buf));
+    }
+
 }
 
 void Can::broadcastShiftSettings() {

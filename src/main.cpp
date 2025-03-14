@@ -4,6 +4,8 @@
 #include "../lib/Transmission/Transmission.h"
 #include "../lib/Button/Button.h"
 #include "../lib/Can/Can.h"
+#include <r3.h>
+#include <tcs.h>
 
 #ifdef NATIVE
     #include "../test/mock/MockAdafruit_NeoPixel.h"

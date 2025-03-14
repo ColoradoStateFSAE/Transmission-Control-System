@@ -41,6 +41,7 @@ class Can {
     virtual void broadcastClutchSettings();    
     virtual void broadcastClutch();
     virtual void broadcastAnalogInput();
+	virtual void broadcastStatus();
 
   private:
     std::function<void(int)> group0 = nullptr;
@@ -48,7 +49,8 @@ class Can {
     std::function<void(int, int, int, bool)> clutchSettings = nullptr;
     std::function<void(int, int)> setClutch = nullptr;
 
-    void handleGroup0(const CAN_message_t &msg);
+    void handleGroup0(const CAN_message_t &msg); // for handling of rpm
+    void handleGroup39(const CAN_message_t &msg); // for handling of gear 
     void handleShiftSettings(const CAN_message_t &msg);
     void handleClutchSettings(const CAN_message_t &msg);
     void handleSetClutch(const CAN_message_t &msg);

@@ -14,6 +14,18 @@ void Transmission::begin() {
     digitalWrite(storage.ECU_UP, HIGH);
 }
 
+bool Transmission::overRev() {
+	bool overrev = false;
+	if (gear >= 2 && gear <= 6)
+	{
+		overrev = (rpm > MAXRPM[gear - 2]);
+	}
+	else { // in 1st gear or out of range
+		overrev = false;
+	}
+	return overrev;
+}
+
 void Transmission::shift(Direction direction) {
     if(state() != CLUTCH_MANUAL && state() != CLUTCH_OUT) {
         Serial.println("\nAdditional shift attempted\n");
@@ -28,6 +40,16 @@ void Transmission::shift(Direction direction) {
 
     if(direction == Direction::UP) {
         Serial.println("\nUP");
+
+		if(rpm <= 6000 && _input < 90)
+		{
+			state(CLUTCH_IN);
+		}
+		else
+		{
+			state(SPARK_CUT);
+		}
+
         if(4000 <= rpm) {
             parameters = up;
             state(SPARK_CUT);
@@ -38,13 +60,27 @@ void Transmission::shift(Direction direction) {
         
     } else if(direction == Direction::DOWN) {
         Serial.println("\nDOWN");
-        parameters = down;
-        state(CLUTCH_IN);
+		if (overRev())
+		{
+			Serial.println("\nERROR: OVERREV");
+		}
+		else
+		{
+			parameters = down;
+        	state(CLUTCH_IN);
+		}
+		
+        
     }
 }
 
 void Transmission::clutchInput(float value) {
     _input = constrain(value, 0.0f, 100.0f);
+}
+
+void Transmission::setGear(int8_t value)
+{
+	gear = value;
 }
 
 void Transmission::setRpm(int value) {
@@ -119,6 +155,18 @@ void Transmission::update() {
                 digitalWrite(storage.ECU_UP, HIGH);
                 digitalWrite(13, LOW);
             });
+
+			// Default parameters
+			int delay = 50;
+			State nextState = CLUTCH_OUT;
+
+			// Switch directly to IDLE if the clutch paddle is already in or if clutch is already out
+			if(_input >= 90 || Transmission::clutchPosition() == storage.start()) {
+				delay = 0;
+				nextState = CLUTCH_MANUAL;
+				waitAndSetState(delay,[]{},nextState);
+			}
+
             
             if(parameters.useClutch) {
                 // Wait the timeout before switching states if using the clutch
