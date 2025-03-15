@@ -5,10 +5,6 @@ using namespace std;
 void Can::begin() {
     interface.begin();
     interface.setBaudRate(1000000);
-	interface.enableFIFO(true);
-	interface.setFIFOFilter(REJECT_ALL);
-	interface.setFIFOFilterRange(2, 1620, 1640, STD);
-	interface.setFIFOFilter(0, 864, STD);
 }
 
 void Can::handleGroup0(const CAN_message_t &msg) {
