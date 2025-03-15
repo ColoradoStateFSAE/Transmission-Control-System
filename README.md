@@ -1,4 +1,4 @@
-
+[![Coverage Status](https://coveralls.io/repos/github/ColoradoStateFSAE/Transmission-Control-System/badge.svg?branch=main)](https://coveralls.io/github/ColoradoStateFSAE/Transmission-Control-System?branch=rollback-branch)
 # Transmission control system
 ![Transmission Control System](https://github.com/user-attachments/assets/98a09840-d501-4c1e-9078-1e4b9dccaef6)
 An electronic shifting solenoid and servo clutch driver developed by CSU's formula SAE team.
@@ -14,7 +14,7 @@ Lower times are possible but are currently untested, and are likely limited by t
 This system was taken to comp on CSU's car in 2024 and preformed flawlessly.
 
 
-Uses existing pingle or kliktronic solenoids and replaces existing shifting electronics.
+Uses existing pingel or kliktronic solenoids and replaces existing shifting electronics.
 
 ![image](https://github.com/ColoradoStateFSAE/Shifting-system/assets/45497901/029124a7-eb61-4bca-9c0d-cc61e725a79a)
 ![image](https://github.com/ColoradoStateFSAE/Shifting-system/assets/45497901/16bc343b-6edc-4ea3-bf92-b9842d30c58c)
