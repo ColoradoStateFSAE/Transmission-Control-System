@@ -1,5 +1,5 @@
-[![PlatformIO CI](https://github.com/ColoradoStateFSAE/Transmission-Control-System/actions/workflows/platformio_ci.yml/badge.svg)](https://github.com/ColoradoStateFSAE/Transmission-Control-System/actions/workflows/platformio_ci.yml)
-[![Coverage Status](https://coveralls.io/repos/github/ColoradoStateFSAE/Transmission-Control-System/badge.svg?branch=2025)](https://coveralls.io/github/ColoradoStateFSAE/Transmission-Control-System?branch=2025)
+[![PlatformIO CI](https://github.com/ColoradoStateFSAE/Transmission-Control-System/actions/workflows/platformio_ci.yml/badge.svg?branch=HEAD)](https://github.com/ColoradoStateFSAE/Transmission-Control-System/actions/workflows/platformio_ci.yml)
+[![Coverage Status](https://coveralls.io/repos/github/ColoradoStateFSAE/Transmission-Control-System/badge.svg?branch=HEAD)](https://coveralls.io/github/ColoradoStateFSAE/Transmission-Control-System)
 # Transmission control system
 ![Transmission Control System](https://github.com/user-attachments/assets/98a09840-d501-4c1e-9078-1e4b9dccaef6)
 An electronic shifting solenoid and servo clutch driver developed by CSU's formula SAE team.
