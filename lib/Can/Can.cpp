@@ -12,10 +12,10 @@ void Can::begin() {
 }
 
 void Can::handleGroup0(const CAN_message_t &msg) {
-    r3_group0_t buf;
-    r3_group0_unpack(&buf, msg.buf, sizeof(msg.buf));
+    r3_group00_t buf;
+    r3_group00_unpack(&buf, msg.buf, sizeof(msg.buf));
 
-    int rpm = r3_group0_rpm_decode(buf.rpm);
+    int rpm = r3_group00_rpm_decode(buf.rpm);
     transmission.setRpm(rpm);
 }
 void Can::handleGroup39(const CAN_message_t &msg)
@@ -82,7 +82,7 @@ void Can::update() {
             handleGroup39(msg);
             break;
         }
-        case R3_GROUP0_FRAME_ID: {
+        case R3_GROUP00_FRAME_ID: {
             lastEcuUpdate = millis();
             handleGroup0(msg);
             break;
