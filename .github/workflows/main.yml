@@ -25,9 +25,10 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade platformio gcovr coveralls
+
       - name: Compile for Teensy
         run: pio run -e teensy41
-        
+
       - name: Run tests
         run: pio test -v -e test
 
@@ -37,8 +38,32 @@ jobs:
             --exclude ".pio" \
             --exclude "test" \
             --exclude "lib/dbc"
+
       - name: Upload to Coveralls
         uses: coverallsapp/github-action@v2
         with:
           files: coverage.json
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  update-readme:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract current branch
+        id: extract_branch
+        run: echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+
+      - name: Replace branch in README
+        run: |
+          sed "s/{{BRANCH}}/${{ env.BRANCH_NAME }}/g" README.template.md > README.md
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "Update README with branch badge for ${{ env.BRANCH_NAME }}" || echo "No changes to commit"
+          git push
