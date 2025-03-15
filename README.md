@@ -1,4 +1,4 @@
-[![Coverage Status](https://coveralls.io/repos/github/ColoradoStateFSAE/Transmission-Control-System/badge.svg?branch=main)](https://coveralls.io/github/ColoradoStateFSAE/Transmission-Control-System?branch=2025)
+[![Coverage Status](https://coveralls.io/repos/github/ColoradoStateFSAE/Transmission-Control-System/badge.svg?branch=2025)](https://coveralls.io/github/ColoradoStateFSAE/Transmission-Control-System?branch=2025)
 # Transmission control system
 ![Transmission Control System](https://github.com/user-attachments/assets/98a09840-d501-4c1e-9078-1e4b9dccaef6)
 An electronic shifting solenoid and servo clutch driver developed by CSU's formula SAE team.
