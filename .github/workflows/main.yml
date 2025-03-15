@@ -1,0 +1,32 @@
+name: Update README with Branch Badges
+
+on:
+  push:
+    branches:
+      - main
+      - 2025
+      - feature/*
+  pull_request:
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Extract current branch
+        id: extract_branch
+        run: echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+
+      - name: Replace branch in README
+        run: |
+          sed "s/{{BRANCH}}/${{ env.BRANCH_NAME }}/g" README.template.md > README.md
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "Update README with branch badge for ${{ env.BRANCH_NAME }}" || echo "No changes to commit"
+          git push
